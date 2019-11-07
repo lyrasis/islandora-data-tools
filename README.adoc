@@ -1,0 +1,7 @@
+= Islandora data tools
+
+This repository contains various scripts and other infomation for working with data/metadata in Islandora.
+
+The scripts are organized by access type/tool used. 
+
+`general` contains scripts that don't interact directly with Islandora, such as tools to process metadata or datastreams you have retrieved via another method. 
