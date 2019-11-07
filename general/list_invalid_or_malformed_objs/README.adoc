@@ -1,0 +1,34 @@
+= list_invalid_or_malformed_objs.rb
+
+
+`ruby list_invalid_or_malformed_objs.rb -i {input_dir}`
+
+`input_dir`:: path to directory containing TECHMD datastream XML files named using convention: `namespace-id.xml`
+
+Output will be a logfile written to `input_dir\_results.log`. Output lines are formatted like:
+
+`I, [2019-11-07T11:16:11.969411 #98975]  INFO -- : namespace:16144	application/pdf	wf:t	valid:t`
+
+The log can be interpreted as follows: 
+
+- line begins with:
+-- `I,` - INFO: object is wellformed and valid
+-- `W,` - WARNING: there is a conflict in at least one of the elements we're checking
+-- `E,` - ERROR: object is either malformed or invalid (or both)
+-- `U,` - UNKNOWN: object is missing information on one or both of these elements
+-- `D,` - DEBUG: some other problem gathering info -- look into it more and possibly improve the script to do better reporting here
+- timestamp
+- category (as shown in "line begins with", followed by ` -- : `
+
+The remainder of the line is tab-delimted:
+
+- PID (`namespace:id`)
+- well-formedness info
+- validity info
+
+For the well-formedness and validity info:
+
+`t`:: true (well-formed or valid)
+`f`:: false (malformed or invalid)
+`conflict`:: there were multiple judgements on this, which did not agree
+`unknown`:: there is missing data
