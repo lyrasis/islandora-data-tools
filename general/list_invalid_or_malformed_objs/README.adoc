@@ -15,7 +15,7 @@ The log can be interpreted as follows:
 ** `I,` - INFO: object is wellformed and valid
 ** `W,` - WARNING: there is a conflict in at least one of the elements we're checking
 ** `E,` - ERROR: object is either malformed or invalid (or both)
-** `U,` - UNKNOWN: object is missing information on one or both of these elements
+** `A,` - ANY: object is missing information on one or both of these elements
 ** `D,` - DEBUG: some other problem gathering info -- look into it more and possibly improve the script to do better reporting here
 * timestamp
 * category (as shown in "line begins with", followed by ` -- : `
