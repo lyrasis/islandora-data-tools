@@ -1,0 +1,5 @@
+`drush` scripts
+
+Discuss authorization/permission requirements with whoever administers your Islandora instance.
+
+I don't think `drush` allows passing arguements through with `php-script`, so you will need to edit input/output locations and variables directly in the scripts. See each script's README for details. 

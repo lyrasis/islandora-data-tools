@@ -1,0 +1,7 @@
+= report_bad_TNs.php
+
+== in-script variables to customize
+
+`$input`:: full path to text file containing one PID per line. PIDs should be in the format: `namespace:ID`.
+`$output`:: full path to directory in which you'd like output written. Output is a tab-delimited text file with two columns: pid, and TN datastream filesize. If there is no TN datastream, it says 'empty' instead of the filesize. 
+
