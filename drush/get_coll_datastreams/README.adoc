@@ -1,0 +1,11 @@
+= get_coll_datastreams.php
+
+== in-script variables to customize
+
+`$namespace`:: namespace (before the : in Islandora/Fedora PIDs)
+`$coll`:: id of collection (after the : in Islandora/Fedora PIDs)
+`$savedir`:: full path to directory where datastreams will be saved
+`$ds_name`:: dsid of datastream to download
+`$get_children`:: whether or not to get datastreams for all children of collection members (yes or no)
+
+WARNING: Currently only MODS datastream is supported. Adding another datastream will require updating the `get_suffix` function, but this is trivial!
