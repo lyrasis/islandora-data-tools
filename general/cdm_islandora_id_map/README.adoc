@@ -1,0 +1,18 @@
+= cdm_islandora_id_map.rb
+
+Creates a tab-separated mapping of Islandora PID and CONTENTdm collection alias+pointer from Islandora MODS for objects.
+
+*Assumes you have already used the https://github.com/lyrasis/islandora-data-tools/tree/master/drush/get_coll_datastreams[/drush/get_coll_datastreams script] in this repository to download all MODS datastreams for a collection.*
+
+Writes the ID map to the parent folder of the directory containing the MODS. For example, if the MODS is in `/migrations/project/coll/modsfiles`, you will find the ID map in `/migrations/project/coll`.
+
+ID map output is a tab-delimited text file (.tsv) in the following format:
+
+`yourislandora:ID	cdmcollalias/id/cdmpointer`
+
+*Usage:*
+
+`ruby cdm_islandora_id_map.rb -m {mods_dir}`
+
+`mods_dir`:: full path to directory containing MODS XML files named using convention: `namespace-id.xml`
+
