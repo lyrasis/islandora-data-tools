@@ -6,7 +6,7 @@ $namespace = 'abc';
 $coll = 'xyz';
 
 // Directory where datastream content will be saved
-$savedir = "/opt/migrations/$namespace/rcak/mods-current";
+$savedir = "/opt/migrations/$namespace/$coll/mods-current";
 
 // Name of datastream you want to grab
 // See: https://wiki.duraspace.org/display/ISLANDORA/APPENDIX+C+-+DATASTREAM+REFERENCE
