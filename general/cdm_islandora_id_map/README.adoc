@@ -1,9 +1,18 @@
-= move_mods-dateCaptured_to_drs-captureDate.rb
+= cdm_islandora_id_map.rb
 
-Moves the attributes and content of any MODS `originInfo/dateCaptured` node to a new `extension/drs:admin/drs:captureDate` node.
+Creates a tab-separated mapping of Islandora PID and CONTENTdm collection alias+pointer from Islandora MODS for objects.
 
-`ruby move_mods-dateCaptured_to_drs-captureDate.rb -i {input_dir} -o {output_dir}`
+*Assumes you have already used the https://github.com/lyrasis/islandora-data-tools/tree/master/drush/get_coll_datastreams[/drush/get_coll_datastreams script] in this repository to download all MODS datastreams for a collection.*
 
-`input_dir`:: full path to directory containing MODS XML files named using convention: `namespace-id.xml`
-`output_dir`:: full path to directory where revised MODS files will be written. Directory will be created if it does not exist.
+Writes the ID map to the parent folder of the directory containing the MODS. For example, if the MODS is in `/migrations/project/coll/modsfiles`, you will find the ID map in `/migrations/project/coll`.
+
+ID map output is a tab-delimited text file (.tsv) in the following format:
+
+`yourislandora:ID	cdmcollalias/id/cdmpointer`
+
+*Usage:*
+
+`ruby cdm_islandora_id_map.rb -m {mods_dir}`
+
+`mods_dir`:: full path to directory containing MODS XML files named using convention: `namespace-id.xml`
 
