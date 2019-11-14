@@ -1,0 +1,16 @@
+= rename_cdm_thumbnails.rb
+
+Given a directory of thumbnails downloaded from CONTENTdm and a mapping between the CONTENTdm and Islandora mappings, renames the thumbnails with their respective Islandora PIDs. 
+
+The script works on one collection at a time.
+
+This script assumes:
+
+* You have downloaded thumbnail JPGs from CONTENTdm. The thumbnails are named `{pointer}.jpg` and are in a directory. https://github.com/lyrasis/cdmtools/[cdmtools] has a command to download thumbnails for one, multiple, or all collections in a CONTENTdm instance.
+* You have used https://github.com/lyrasis/islandora-data-tools/tree/master/general/cdm_islandora_id_map[/general/cdm_islandora_id_map] to create an `islandora_cdm_id_map.tsv` file.
+* Both the directory of thumbnails and the id map file are available from the location you're running this script
+
+*For usage:*
+
+`ruby rename_cdm_thumbnails.rb --help`
+

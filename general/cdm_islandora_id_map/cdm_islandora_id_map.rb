@@ -35,7 +35,7 @@ modsdir = path_pieces.pop
 wdir = path_pieces.join('/')
 
 Dir::chdir(wdir)
-File.open('islandora_cdm_id_map.txt', 'w'){ |outfile|
+File.open('islandora_cdm_id_map.tsv', 'w'){ |outfile|
   Dir::each_child(modsdir) { |modsfile|
     mods = Nokogiri::XML(File.open("#{modsdir}/#{modsfile}"))
     idnode = mods.xpath("//mods:identifier[@type='CONTENTdm ID']").first
