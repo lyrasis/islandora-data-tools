@@ -1,0 +1,3 @@
+Completing an update in Islandora may involve a number of steps and tools. It would be possible to automate the entire process, but then the code would be less reusable and also harder to test. Having separate scripts for each step is good from the perspective of maintainability and understanding each script; however, it can be difficult to remember all the steps required to carry out an entire update.
+
+Each file here is a cheatsheet for a common Islandora workflow.

@@ -1,0 +1,10 @@
+= Update Islandora with CDM thumbnails
+
+This process is handled per-collection.
+
+*Harvest CDM thumbnails*:: Use https://github.com/lyrasis/cdmtools/[cdmtools]' `get_thumbnails` command to download the thumbnails for the collections that need them
+*Get MODS from Islandora for the collection*:: Use https://github.com/lyrasis/islandora-data-tools/tree/master/drush/get_coll_datastreams[islandora-data-tools/drush/get_coll_datastreams]
+*Create Islandora<->CDM ID map*:: Use https://github.com/lyrasis/islandora-data-tools/tree/master/general/cdm_islandora_id_map[islandora-data-tools/general/cdm_islandora_id_map]
+*Rename thumbnails with Islandora PID*:: Use https://github.com/lyrasis/islandora-data-tools/tree/master/general/rename_cdm_thumbnails[islandora-data-tools/general/rename_cdm_thumbnails]
+*Clean up thumbnail directory*:: Remove any thumbnails that did not get renamed, or manually name them following the Islandora PID pattern
+*Put new TN datastreams in Islandora*:: Use https://github.com/lyrasis/islandora-data-tools/tree/master/drush/put_tn_datastreams[islandora-data-tools/drush/put_tn_datastreams]

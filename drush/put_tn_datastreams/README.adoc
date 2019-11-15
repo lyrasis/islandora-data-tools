@@ -1,4 +1,4 @@
-= update_TNs.php
+= put_tn_datastreams.php
 
 Updates the TN datastreams of objects with new image files.
 
