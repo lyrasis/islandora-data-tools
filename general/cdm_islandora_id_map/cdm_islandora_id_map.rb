@@ -40,6 +40,10 @@ File.open('islandora_cdm_id_map.tsv', 'w'){ |outfile|
     mods = Nokogiri::XML(File.open("#{modsdir}/#{modsfile}"))
     idnode = mods.xpath("//mods:identifier[@type='CONTENTdm ID']").first
     i_id = modsfile.sub('.xml', '')
-    outfile.write("#{i_id}\t#{idnode.text}\n")
+    if idnode
+      outfile.write("#{i_id}\t#{idnode.text}\n")
+    else
+      puts "Cannot find ID in #{modsfile}."
+    end    
   }
 }
