@@ -1,0 +1,10 @@
+= update_TNs.php
+
+Updates the TN datastreams of objects with new image files.
+
+== in-script variables to customize
+
+`$tndir`:: full path to directory containing TNs to upload into Islandora
+`$suffixes`:: list of file suffixes in your thumbnail set. You must add any in your files that are missing. You can leave suffixes in the list if you don't have any files with that suffix.
+
+IMPORTANT: Assumes the TN files to be uploaded are named using the PID of the associated object. Example: `ns-123.jpg`
