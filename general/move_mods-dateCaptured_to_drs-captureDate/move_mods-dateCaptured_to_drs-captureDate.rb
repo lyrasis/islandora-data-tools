@@ -11,7 +11,7 @@ end
 
 options = {}
 OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby list_invalid_or_malformed_objs.rb -i {input_dir}'
+  opts.banner = 'Usage: ruby move_mods-dateCaptured_to_drs-captureDate.rb -i {input_dir} -o {output_dir}'
 
   opts.on('-i', '--input INPUTDIR', 'Path to directory containing MODS files to process'){ |i|
     options[:input] = i
