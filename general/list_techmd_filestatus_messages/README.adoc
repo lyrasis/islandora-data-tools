@@ -1,0 +1,23 @@
+= ruby list_techmd_filestatus_messages.rb
+
+
+`ruby list_techmd_filestatus_messages.rb -i {input_dir}`
+
+`input_dir`:: path to directory containing TECHMD datastream XML files named using convention: `namespace-id.xml`
+
+Output will be a logfile written to `input_dir\_techmd_messages.log`. Output lines are formatted like:
+
+`I, [2019-11-07T11:16:11.969411 #98975]  INFO -- : namespace:16144	application/pdf	wf:t	valid:t`
+
+The log can be interpreted as follows: 
+
+* line begins with:
+** `I,` - INFO: the message(s)
+** `W,` - WARNING: notes when there is not a message element in the TECHMD to report
+* timestamp
+* category (as shown in "line begins with", followed by ` -- : `
+
+The remainder of the line is tab-delimted:
+
+* PID (`namespace:id`)
+* message or warning
