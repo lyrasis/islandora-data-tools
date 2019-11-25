@@ -1,0 +1,17 @@
+= get_datastreams.rb
+
+Grab datastreams for a list of objects. Objects can be in any collection. Currently only works for:
+
+* MODS
+* TECHMD
+
+`ruby get_datastreams.rb -p {local_port} -d {dsid} -i {input_file} -o {output_directory}`
+
+Run `ruby get_datastreams.rb --help` for details on options.
+
+Output will be:
+
+- one file per datastream successfully retrieved: `namespace-id.{suffix}`
+- list of objects in your list lacking a datastream: `no_datastream.txt`
+- list of objects where datastream was not retrieved for some reason: `errs.txt`. Can be used as input to a subsequent run of the script.
+- log with more info about items in errs.txt, if it was available: `get_datastreams.log`

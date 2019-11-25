@@ -12,10 +12,17 @@ end
 
 options = {}
 OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby get_techmd_datastreams.rb -p {local_port} -i {input_file} -o {output_directory}'
+  opts.banner = 'Usage: ruby get_datastreams.rb -p {local_port} -d {dsid} -i {input_file} -o {output_directory}'
 
   opts.on('-p', '--port LOCALPORT', 'Local port number for access to Fedora server'){ |p|
     options[:port] = p
+  }
+  opts.on('-d', '--datastream DSID', 'Datastream identifier: MODS or TECHMD'){ |d|
+    options[:ds] = d
+    unless %[MODS TECHMD].include?(d)
+      puts "Datastream id must be MODS or TECHMD"
+      exit
+    end
   }
   opts.on('-i', '--input INPUTFILE', 'Path to input file'){ |i|
     options[:input] = i
@@ -37,7 +44,7 @@ OptionParser.new{ |opts|
   }
 }.parse!
 
-log = Logger.new("#{options[:output]}/get_techmd_datastreams.log")
+log = Logger.new("#{options[:output]}/get_datastreams.log")
 
 
   def get_pids(filepath)
@@ -56,7 +63,7 @@ progress = ProgressBar.create(:title => "Processing", :starting_at => 0, :total 
 pids.each{ |pid|
   outfile = "#{options[:output]}/#{pid.sub(':', '-')}.xml"
   next if File::exist?(outfile)
-  url = URI("http://localhost:#{options[:port]}/fedora/objects/#{pid}/datastreams/TECHMD/content")
+  url = URI("http://localhost:#{options[:port]}/fedora/objects/#{pid}/datastreams/#{options[:ds]}/content")
   result = Net::HTTP.get_response(url)
   if result.is_a?(Net::HTTPSuccess)
     File.open(outfile, 'w'){ |f|
