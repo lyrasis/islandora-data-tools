@@ -1,0 +1,10 @@
+= get_list_datastreams.php
+
+== in-script variables to customize
+
+`$pids`:: full path to text file containing PIDs of objects for which you want to grab the objects (`namespace:id`)
+`$savedir`:: full path to directory where datastreams will be saved
+`$dsid`:: dsid of datastream to download
+
+
+WARNING: Currently only OBJ datastream for PDFs is supported. Adding another datastream or file type will require updating the `get_suffix` function, but this is trivial!
