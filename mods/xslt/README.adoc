@@ -1,0 +1,16 @@
+= XSLT
+
+XSL tranformations for MODS
+
+*cap_initial_genre_subject_letter.xsl*:: Capitalize the first letter of subject and genre nodes (to avoid split facets due to case only). Removes period from the end of non-geographic for the same reason. Affects only nodes that don't have any defined subelements
+*cleanMigratedFromID.xsl*:: For use with CDM migration when the MIK config uses: `include_migrated_from_uri = TRUE`. Removes the initial 1; sets `type="CONTENTdm ID`; sets `invalid="yes"`.
+*extractCdmId.xsl*:: Assuming your MODS has the CONTENTdm ID in an `<identifier type="CONTENTdm ID">`, produces a text file with the CONTENTdm ID from each MODS file
+*handlePartialBlankness.xsl*:: https://github.com/MarcusBarnes/mik/blob/master/extras/lsu/xsl/blankNodes.xsl[LSUs blankNotes.xsl] will delete nodes that are completely blank. This handles more complex situations, like:
+* Removes `<name>` nodes with an empty (or missing) `<namePart>`
+* Keeps `<relatedItem>` nodes having an `<identifier>`, whether or not there is a `<titleInfo>/</title>`
+* Deletes `<relatedItem>` nodes with missing/blank `<titleInfo>/<title>` if there is no `<identifier>`
+* Keeps `<relatedItem>` nodes that have no child elements (xlink:href links should be like this)
+*OrderedTemplates.xsl*:: Put MODS elements in a standard order, most important first. Makes sure title designated with `usage="primary"` is first. Makes sure date element designated as `keyDate="yes"` is first. Orders names and notes by type/role (general rules: personal names before corporate names; creators/authors before other roles).
+*remove_transcript.xsl*:: Deletes `<note type="transcript">`
+
+
