@@ -1,0 +1,15 @@
+= sed one-liners for quick MODS fixes
+
+Sometimes the easiest and quickest fix is a find/replace from the command line using https://www.gnu.org/software/sed/manual/sed.html[sed].
+
+*In-place find-replace in all MODS in a directory*
+
+Destructive, so backup the files before, or be ready to re-generate/re-download them if you mess up.
+
+`cd \into\directory\containing\mods`
+
+`sed -i 's/find this/replace it with this/g' *.xml`
+
+If you need to find/replace strings that contain `/`, you can do something like:
+
+`sed -i 's%find this/that%replace it with this%g' *.xml`
