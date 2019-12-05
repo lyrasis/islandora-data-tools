@@ -15,7 +15,8 @@ foreach ($modslist as $mods) {
         $path = $modsdir . '/' . $mods;
 
         $pid = str_replace('.xml', '', $mods);
-
+        $pid = str_replace('-', ':', $pid);
+        
         $obj = islandora_object_load($pid);
         $mds = $obj['MODS'];
         $mds->setContentFromFile($path);
