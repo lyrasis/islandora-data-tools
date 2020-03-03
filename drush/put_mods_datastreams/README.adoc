@@ -4,4 +4,4 @@
 
 `$modsdir`:: full path to directory containing MODS to upload into Islandora
 
-IMPORTANT: Assumes the MODS files to be uploaded are named using the PID of the associated object. Example: `ns:123.xml`
+IMPORTANT: Assumes the MODS files to be uploaded are named using the PID of the associated object. Example: `ns-123.xml` (`-` is converted to `:` by the script)
