@@ -31,29 +31,23 @@ drupal_static_reset('islandora_get_tuque_connection');
 $tuque = islandora_get_tuque_connection();
 $repository = $tuque->repository;
 
-
-// $suffix = get_suffix($dsid);
-
 foreach ($cleanpids as $pid) {
     get_and_write_datastream($pid, $dsid, $savedir);
 }
-           
-// foreach ($results as $result) {
-//     $pid = $result['pid']['value'];
-//     $parents[] = $pid;
-// }
-
-// foreach ($parents as $parent) {
-//     get_and_write_datastream($parent, $dsid, $suffix, $savedir);
-// } // end foreach $coll_ids
-
 
 function get_and_write_datastream($pid, $dsid, $path)
 {
     $obj = islandora_object_load($pid);
     $datastream = $obj[$dsid];
+    switch ($dsid) {
+    case 'MODS':
+        $suffix = '.xml';
+        break;
+    case 'OBJ':
+        $suffix = get_suffix($mimetype);
+        break;
+    }
     $mimetype = $datastream->mimetype;
-    $suffix = get_suffix($mimetype);
     $path = "$path/$pid$suffix";
     print "Saved $path \n";
     $datastream->getContent($path);
