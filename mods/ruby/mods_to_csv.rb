@@ -115,6 +115,9 @@ def extract_mods(modspath, modsfile, xpaths)
   id = modsfile.sub('.xml', '')
   doc = Nokogiri::XML(File.open("#{modspath}/#{modsfile}"))
   mods = doc.root
+
+  # The following line is needed because it looks like the mods namespace hasn't been
+  #  defined in the standard way for all our clients
   mods.add_namespace_definition('mods', 'http://www.loc.gov/mods/v3') unless mods.namespaces.has_key?('xmlns:mods')
   modsdata = []
   xpaths.each{ |relement, colhash|
