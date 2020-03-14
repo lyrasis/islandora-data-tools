@@ -1,6 +1,6 @@
 <?php
 
-// // // Variables to change 
+// // // Variables to change
 // Full path to text file of PIDs
 $pids = '/home/kristina/code/islandora-data-tools/data/pids.txt';
 
@@ -13,12 +13,13 @@ $dsid = 'OBJ';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
-$pidlist = [];
+$pidlist = array();
 
 $fn = fopen($pids, 'r');
+
 while(! feof($fn)) {
     $line = fgets($fn);
-    $pidlist[] = rtrim($line);
+    array_push($pidlist, rtrim($line));
 }
 
 $cleanpids = array_filter($pidlist, 'strlen');
@@ -37,7 +38,14 @@ foreach ($cleanpids as $pid) {
 
 function get_and_write_datastream($pid, $dsid, $path)
 {
-    $obj = islandora_object_load($pid);
+if (!islandora_object_load($pid)) {
+  drush_log(dt("Object !pid does not exist. !dsid not retrieved",
+    array('!dsid' => $dsid, '!pid' => $pid)),
+    'warning');
+  return FALSE;
+ } else {
+
+$obj = islandora_object_load($pid);
     $datastream = $obj[$dsid];
     switch ($dsid) {
     case 'MODS':
@@ -49,8 +57,8 @@ function get_and_write_datastream($pid, $dsid, $path)
     }
     $mimetype = $datastream->mimetype;
     $path = "$path/$pid$suffix";
-    print "Saved $path \n";
     $datastream->getContent($path);
+ }
 }
 
 function get_suffix($mimetype)
