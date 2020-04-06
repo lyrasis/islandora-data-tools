@@ -1,12 +1,15 @@
-require 'bundler/inline'
 require 'csv'
+require 'logger'
 require 'optparse'
 require 'pp'
 
+require 'bundler/inline'
 gemfile do
   source 'https://rubygems.org'
   gem 'nokogiri', '>= 1.10.4'
 end
+
+Log = Logger.new(STDOUT)
 
 =begin
 ABOUT CONFIG
@@ -56,16 +59,16 @@ prefix) returns the value of that attribute on that node.
 =end
 
 config = {
-   'mods:titleInfo' => {
-     'self' => ['@type', '@usage'],
-     'mods:title' => ['value']
-   },
-   'mods:relatedItem' => {
-     'mods:titleInfo/mods:title' => ['value']
-   },
-   'mods:originInfo/mods:dateCreated' => {
-     'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-   },
+   # 'mods:titleInfo' => {
+   #   'self' => ['@type', '@usage'],
+   #   'mods:title' => ['value']
+   # },
+   # 'mods:relatedItem' => {
+   #   'mods:titleInfo/mods:title' => ['value']
+   # },
+   # 'mods:originInfo/mods:dateCreated' => {
+   #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+   # },
    'mods:originInfo/mods:dateIssued' => {
      'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
    },
@@ -113,7 +116,14 @@ end
 
 def extract_mods(modspath, modsfile, xpaths)
   id = modsfile.sub('.xml', '')
-  doc = Nokogiri::XML(File.open("#{modspath}/#{modsfile}"))
+
+  begin
+    doc = Nokogiri::XML(File.open("#{modspath}/#{modsfile}"))
+  rescue
+    Log.warn("#{modsfile} - Empty XML document")
+    return {id => []}
+  end
+  
   mods = doc.root
 
   # The following line is needed because it looks like the mods namespace hasn't been

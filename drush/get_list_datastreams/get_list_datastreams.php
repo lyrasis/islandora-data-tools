@@ -17,7 +17,7 @@ $pidlist = array();
 
 $fn = fopen($pids, 'r');
 
-while(! feof($fn)) {
+while(!feof($fn)) {
     $line = fgets($fn);
     array_push($pidlist, rtrim($line));
 }
