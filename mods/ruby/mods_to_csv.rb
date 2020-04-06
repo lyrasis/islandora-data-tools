@@ -7,6 +7,7 @@ require 'bundler/inline'
 gemfile do
   source 'https://rubygems.org'
   gem 'nokogiri', '>= 1.10.4'
+  gem 'pry', '>= 0.13.0'
 end
 
 Log = Logger.new(STDOUT)
@@ -69,9 +70,13 @@ config = {
    # 'mods:originInfo/mods:dateCreated' => {
    #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
    # },
-   'mods:originInfo/mods:dateIssued' => {
-     'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-   },
+   # 'mods:originInfo/mods:dateIssued' => {
+   #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+   # },
+   'mods:accessCondition'=> {
+     'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
+                '@lang', '@xml:lang', '@script', '@transliteration']
+   }
  }
 
 options = {}
@@ -179,17 +184,39 @@ def get_column_values(column, rownodes, hdr)
     end
   else
     attr = column.sub('@', '')
+
+    if attr[':']
+      attr = attr.split(':')
+      if rownodes.namespaces.keys.include?("xmlns:#{attr[0]}")
+        ns = rownodes.namespaces["xmlns:#{attr[0]}"]
+      else
+        attr = attr.join(':')
+      end
+    end
+    
     values = []
     if rownodes.is_a?(Nokogiri::XML::NodeSet)
       rownodes.each{ |node|
         if node.attribute(attr)
-          values << node.attribute(attr).value
+          if attr == 'xml:lang'
+            values << node.lang
+          elsif attr.is_a?(String)
+            values << node.attribute(attr).value
+          else
+            values << node.attribute_with_ns(attr[1], ns)
+          end
         else
           values << ['']
         end
       }
     else
-      rownodes.attribute(attr) ? values << rownodes.attribute(attr).value : values << ''
+      if attr == 'xml:lang'
+        values << rownodes.lang
+      elsif attr.is_a?(String)
+        rownodes.attribute(attr) ? values << rownodes.attribute(attr).value : values << ''
+      else
+        rownodes.attribute_with_ns(attr[1], ns) ? values << rownodes.attribute_with_ns(attr[1], ns).value : values << ''
+      end
     end
   end
 
