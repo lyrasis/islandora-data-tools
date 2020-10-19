@@ -60,24 +60,30 @@ prefix) returns the value of that attribute on that node.
 =end
 
 config = {
-   # 'mods:titleInfo' => {
-   #   'self' => ['@type', '@usage'],
-   #   'mods:title' => ['value']
-   # },
-   # 'mods:relatedItem' => {
-   #   'mods:titleInfo/mods:title' => ['value']
-   # },
-   # 'mods:originInfo/mods:dateCreated' => {
-   #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-   # },
-   # 'mods:originInfo/mods:dateIssued' => {
-   #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-   # },
-   'mods:accessCondition'=> {
-     'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
-                '@lang', '@xml:lang', '@script', '@transliteration']
-   }
- }
+    'mods:titleInfo' => {
+      'self' => ['@type', '@usage', 'value of mods:title', 'value of mods:partNumber', 'value of mods:partName'],
+      #   'mods:title' => ['value']
+    },
+    # 'mods:relatedItem' => {
+    #   'mods:titleInfo/mods:title' => ['value']
+    # },
+    # 'mods:originInfo/mods:dateCreated' => {
+    #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+    # },
+    # 'mods:originInfo/mods:dateIssued' => {
+    #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+    # },
+    #'mods:accessCondition'=> {
+    #  'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
+    #             '@lang', '@xml:lang', '@script', '@transliteration']
+    # },
+    #'mods:part'=>{
+    #  'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
+    #  'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
+    #  'mods:date'=>['value'],
+    #  'mods:text'=>['@type', '@displayLabel', 'value']
+    # }
+  }
 
 options = {}
 OptionParser.new{ |opts|
@@ -108,6 +114,8 @@ def make_headers(config)
       columns.each{ |column|
         if column == 'value'
           chdr = ehdr
+        elsif column.start_with?('value of ')
+          chdr = ehdr + ' ' + column.sub('value of mods:', '')
         else
           chdr = ehdr + ' ' + column
         end
@@ -133,15 +141,21 @@ def extract_mods(modspath, modsfile, xpaths)
 
   # The following line is needed because it looks like the mods namespace hasn't been
   #  defined in the standard way for all our clients
-  mods.add_namespace_definition('mods', 'http://www.loc.gov/mods/v3') unless mods.namespaces.has_key?('xmlns:mods')
+  begin
+    mods.add_namespace_definition('mods', 'http://www.loc.gov/mods/v3') unless mods.namespaces.has_key?('xmlns:mods')
+  rescue
+    Log.warn("#{modsfile} - Cannot add MODS namespace definition. Check it out?")
+    return {id => []}
+  end
+  
   modsdata = []
   xpaths.each{ |relement, colhash|
     hdr = relement.clone.sub('//', '').gsub('mods:', ' ')
     rownodes = mods.xpath(relement)
     if rownodes.length > 0
-    rownodes.each{ |rownode|
-      modsdata << process_row(rownode, colhash, hdr)
-    }
+      rownodes.each{ |rownode|
+        modsdata << process_row(rownode, colhash, hdr)
+      }
     else
       blank = Nokogiri::XML::Element.new('blank', doc)
       modsdata << process_row(blank, colhash, hdr)
@@ -154,9 +168,11 @@ def process_row(rownode, colhash, hdr)
   colvals = {}
   
   colhash.each{ |element, columns|
-    unless element == 'self'
+    if element == 'self'
+      ehdr = hdr
+    else
       hdrelement = element.clone.gsub('mods:', ' ')
-      hdr = hdr + hdrelement
+      ehdr = hdr + hdrelement
     end
 
     if element == 'self'
@@ -166,23 +182,34 @@ def process_row(rownode, colhash, hdr)
     end
 
     columns.each{ |column|
-      vals = get_column_values(column, nodes, hdr)
+      vals = get_column_values(column, nodes, ehdr)
       colvals[vals[0]] = vals[1]
     }
   }
   return colvals
 end
 
-def get_column_values(column, rownodes, hdr)
-  hdr = hdr + ' ' + column unless column == 'value'
-
-  if column == 'value'
+def get_column_value(rownodes)
     if rownodes.is_a?(Nokogiri::XML::NodeSet)
-      values = rownodes.map{ |node| node.text }
+      return rownodes.map{ |node| node.text }
     else
-      values = [rownodes.text]
+      return [rownodes.text]
+    end
+end
+
+def get_column_values(column, rownodes, hdr)
+  if column == 'value'
+    values = get_column_value(rownodes)
+  elsif column.start_with?('value of')
+    path = column.sub('value of ', '')
+    hdr = hdr + ' ' + path.sub('mods:', '')
+    if rownodes.is_a?(Nokogiri::XML::NodeSet)
+      values = rownodes.map{ |node| node.xpath(path).text }
+    else
+      values = [rownodes.xpath(path).text]
     end
   else
+    hdr = hdr + ' ' + column
     attr = column.sub('@', '')
 
     if attr[':']
