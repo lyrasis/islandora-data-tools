@@ -1,0 +1,37 @@
+= Islandora 8 prep
+
+Mish-mash of stuff for profiling, manipulating, remediating, etc descriptive metadata in preparation for I8.
+
+== Notes
+
+=== ECS operations
+*Startup*: `./gradlew up`
+
+*Grab all current metadata from server*: `./gradlew {sitename}SyncMetadata`
+
+*View individual files in IDE*:
+
+Go to https://ide.traefik.me/
+
+In sidebar, navigate to: `web/files/private/{sitename}/fedora`
+
+*Copy metadata files from Docker to `ecs/local` directory*:
+
+====
+docker run -d --rm --name copy --entrypoint sleep -v migration-data-{sitename}-fedora:/data local/base 10000
+docker cp copy:/data/ local
+docker stop copy  
+====
+
+*Copy just the MODS metadata from local to somewhere else for profiling, etc.*:
+
+All versions of the MODS are in local, and I care only about the current MODS.
+
+The current MODS is in a deep-ish hierarchy: 
+
+`/datastreams/{PID}/MODS/MODS.0/MODS.0.{PID}.xml`
+
+This moves all current MODS for an instance into one directory.
+
+- Set constant values as appropriate
+- `ruby mods_from_ecs_local.rb`
