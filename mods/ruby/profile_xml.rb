@@ -1,4 +1,5 @@
 require 'bundler/inline'
+require 'csv'
 require 'json'
 require 'logger'
 require 'optparse'
@@ -82,25 +83,26 @@ class ProfilingManager
     end
   end
 
-  # def report_limited_values(int)
-  #   occlabel = 'OCCURRENCES'
-  #   uniqlabel = 'UNIQUES'
-  #   puts "      \t#{occlabel}\t#{uniqlabel}\tXPATH"
-  #   xpaths.each do |xpath|
-  #     data = profile[xpath]
-  #     occ = occurrences(data).to_s.rjust(occlabel.length, ' ')
-  #     uniq = uniques(data).to_s.rjust(uniqlabel.length, ' ')
-  #     dispvals = get_disp_vals(data[:values], int)
-  #     puts "#{label(data)}\t#{occ}\t#{uniq}\t#{xpath}"
-  #   end
-  # end
+  def report_values
+    occlabel = 'OCCURRENCES'
+    CSV.open("#{PROFILEPATH}/values_report.csv", 'wb', headers: true) do |csv|
+      csv <<  ['XPATH', occlabel, 'VALUE', 'FILE EXAMPLES']
+      xpaths.each do |xpath|
+        data = profile[xpath]
+        xpath_values(data[:values]).each do |val|
+          csv << [xpath, val[:occ], val[:val], val[:ex]]
+        end
+      end
+    end
+  end
 
   private
 
-  # def get_disp_vals(valhash, int)
-  #   disp_vals = []
-    
-  # end
+  def xpath_values(valhash)
+    arr = []
+    valhash.each{ |val, files| arr << {occ: files.length, val: val, ex: files.first(3).join(', ')} }
+    arr
+  end
 
   def label(path_data)
     vals = path_data[:values]
@@ -178,7 +180,7 @@ class FileProfiler
   def populate_text(path)
     @doc.xpath(path).each do |node|
       base = profile[path][:values]
-      value = [node.text]
+      value = node.text
       base.key?(value) ? base[value] << @name : base[value] = [@name]
     end
   end
@@ -240,4 +242,4 @@ pm = ProfilingManager.new(dir: options[:input])
 pm.process
 #pm.report_elements_and_attributes_used
 
-pm.report_summary
+pm.report_values
