@@ -232,14 +232,9 @@ class FileProfiler
     @doc.xpath(path).each{ |node| arr << node.attributes.keys }
     arr.flatten.uniq
   end
-
-  def attr
-    xa = xpaths_having_attributes
-  end
 end
 
 pm = ProfilingManager.new(dir: options[:input])
 pm.process
-#pm.report_elements_and_attributes_used
-
+pm.report_summary
 pm.report_values
