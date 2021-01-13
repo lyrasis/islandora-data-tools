@@ -86,5 +86,5 @@ pb.finish
 if flag > 0
   puts "\n\n#{flag} invalid MODS files in #{modspath}. See validation_log.txt for details.\n"
   puts 'The unique error types found across the MODS files are:'
-  errs.map{ |err, ct| [ct, err] }.sort.reverse.each{ |e| puts " - #{e}" }
+  errs.map{ |err, ct| [ct, err] }.sort.reverse.each{ |e| puts " - #{e.join("\t")}" }
 end
