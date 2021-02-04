@@ -1,5 +1,6 @@
 = Ruby scripts for manipulating MODS
 
+*generate_test_objects_for_mods.rb*:: It is fairly cheap/easy to generate a bunch of MODS for testing. This lets you pick a little image somewhere and add it to the MODS directory once per MODS file, named such that you can use ZIP importer to batch import the test set as basic image content model
 *map_islandora_CDM_ids.rb*:: Point this at a directory of Islandora MODS and get a text file with lines in the following format for each MODS file: "Islandora PID\tCONTENTdm ID". Change the path to the MODS directory in the script. Map file (islandora_cdm_id_map.txt) will be saved in parent directory of MODS directory.
 *merge_creato.rb*:: Merges the `creato` field value from CDM record into the current MODS record, writes out new version of MODS record. Makes a lot of assumptions, and you need to have source files in place. See script for details on setup. Very specific to the MODS name element. The XML parsing part will need to be redone for handling other fields, but this gives a pattern to go on.
 *merge_transcript.rb*:: Merges the `transc` field value from CDM record into the current MODS record, writes out new version of MODS record. Makes a lot of assumptions, and you need to have source files in place. See script for details on setup.
