@@ -16,7 +16,7 @@ SCHEMAPATH = '~/data/islandora/mods/mods_3_7_schema.xsd'
 
 options = {}
 OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby remove_blank_attributes.rb -i {input_dir} -o {output_dir}'
+  opts.banner = 'Usage: ruby validate_mods_files_in_directory.rb -i {input_dir} -s {path/to/schema/file}'
 
   opts.on('-i', '--input INPUTDIR', 'Path to directory containing MODS files to process'){ |i|
     options[:input] = File.expand_path(i)
