@@ -13,3 +13,8 @@ Destructive, so backup the files before, or be ready to re-generate/re-download 
 If you need to find/replace strings that contain `/`, you can do something like:
 
 `sed -i 's%find this/that%replace it with this%g' *.xml`
+
+[NOTE]
+====
+On Mac OSX, you many need to add an empty string ('') after -i to avoid an "invalid command code j" error
+====
