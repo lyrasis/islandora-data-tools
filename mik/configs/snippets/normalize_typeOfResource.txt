@@ -1,0 +1,3 @@
+metadatamanipulators[] = "SimpleReplace|/<typeOfResource>Stillimage/|<typeOfResource>still image"
+metadatamanipulators[] = "SimpleReplace|/<typeOfResource>Text/|<typeOfResource>text"
+metadatamanipulators[] = "SimpleReplace|/<typeOfResource>Sound/|<typeOfResource>sound recording-nonmusical"

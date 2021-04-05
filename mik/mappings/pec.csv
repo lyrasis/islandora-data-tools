@@ -1,0 +1,47 @@
+Description,"<abstract displayLabel=""Description"">%value%</abstract>"
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Annotator,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">annotator</roleTerm></role></name>"
+Author,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">author</roleTerm></role></name>"
+Photographer,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">photographer</roleTerm></role></name>"
+GIS Data - Latitude,"<note displayLabel=""GIS Data Latitude"" type=""search support"">%value%</note>"
+GIS Data - Longitude,"<note displayLabel=""GIS Data Longitude"" type=""search support"">%value%</note>"
+Map URL,"<note displayLabel=""Map URL"">%value%</note>"
+Name of Building,"<note displayLabel=""Name of Building"">%value%</note>"
+Name of School,"<note displayLabel=""Name of School"">%value%</note>"
+Other School Name,"<note displayLabel=""Other School Name"">%value%</note>"
+Racial Orientation,"<note displayLabel=""Racial Orientation"">%value%</note>"
+Type of School,"<note displayLabel=""Type of School"">%value%</note>"
+Note,<note>%value%</note>
+Date Digitized,<originInfo><dateCaptured>%value%</dateCaptured></originInfo>
+Date of Photograph -2,"<originInfo><dateCreated encoding=""marc"" point=""end"">%value%</dateCreated></originInfo>"
+Date of Photograph -1,"<originInfo><dateCreated encoding=""marc"" point=""start"">%value%</dateCreated></originInfo>"
+Date,"<originInfo><dateCreated keyDate=""yes"">%value%</dateCreated></originInfo>"
+Date of Photograph,<originInfo><dateCreated>%value%</dateCreated></originInfo>
+Publication Date,<originInfo><dateIssued>%value%</dateIssued></originInfo>
+Publisher,<originInfo><publisher>%value%</publisher></originInfo>
+Original Image Size,<physicalDescription><extent>%value%</extent></physicalDescription>
+Physical Description,<physicalDescription><extent>%value%</extent></physicalDescription>
+Original Image Medium,<physicalDescription><form>%value%</form></physicalDescription>
+Digital File Type,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Original Publication,"<relatedItem displayLabel=""Original Publication"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Related Resource,<relatedItem><titleInfo>%value%</titleInfo></relatedItem>
+Subject,"<subject authority=""aat""><topic>%value%</topic></subject>"
+Geographic Subject,"<subject authority=""lcsh""><geographic>%value%</geographic></subject>"
+Topical Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+County,"<subject authority=""naf"" displayLabel=""County""><geographic>%value%</geographic></subject>"
+GIS Data,"<subject displayLabel=""GIS Data""><cartographics><coordinates>%value%</coordinates></cartographics></subject>"
+Town / Community,"<subject displayLabel=""Town/Community""><geographic>%value%</geographic></subject>"
+Meeting Name Subject,"<subject><name type=""conference""><namePart>%value%</namePart></name></subject>"
+Corporate Name Subject,"<subject><name type=""corporate""><namePart>%value%</namePart></name></subject>"
+Personal Name Subject,"<subject><name type=""personal""><namePart>%value%</namePart></name></subject>"
+Title,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Type,<typeOfResource>%value%</typeOfResource>

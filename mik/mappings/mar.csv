@@ -1,0 +1,23 @@
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Local genre,"<genre authority=""local"">%value%</genre>"
+Accession Number,"<identifier displayLabel=""Accession Number"" type=""accession number"">%value%</identifier>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Type of Object,"<note displayLabel=""Type of Object"">%value%</note>"
+Date of Image,<originInfo><dateCaptured>%value%</dateCaptured></originInfo>
+Date of Manufacture,<originInfo><dateCreated keyDate="yes">%value%</dateCreated></originInfo>
+Dimensions,<physicalDescription><extent>%value%</extent></physicalDescription>
+Format,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Physical Details,"<physicalDescription><note type=""physical details"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Place of Manufacture,"<subject authority=""lcsh"" displayLabel=""Place of Manufacture""><geographic>%value%</geographic></subject>"
+Time Period,"<subject authority=""lcsh"" displayLabel=""Time Period""><temporal>%value%</temporal></subject>"
+Other Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Medical Subject,"<subject authority=""mesh""><topic>%value%</topic></subject>"
+Manufacturer,"<subject displayLabel=""Manufacturer""><name type=""corporate""><namePart>%value%</namePart></name></subject>"
+Artifact Name,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Type,<typeOfResource>%value%</typeOfResource>

@@ -1,0 +1,57 @@
+Description,"<abstract displayLabel=""Description"" type=""subject"">%value%</abstract>"
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Author,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">author</roleTerm></role></name>"
+Photographer,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">photographer</roleTerm></role></name>"
+Additional Address Third,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Eighth,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Fifth,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Fourth,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Ninth,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Second,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Seventh,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Sixth,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Additional Address Tenth,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Alternate Address,"<note displayLabel=""Additional Address"" type=""search support"">%value%</note>"
+Area of Jackson Ward Block,"<note displayLabel=""Area of Jackson Ward Block"" type=""search support"">%value%</note>"
+Area of Jackson Ward Full Street,"<note displayLabel=""Area of Jackson Ward Full Street"" type=""search support"">%value%</note>"
+Area of Jackson Ward Main Street,"<note displayLabel=""Area of Jackson Ward Main Street"" type=""search support"">%value%</note>"
+GIS Data Latitude,"<note displayLabel=""GIS Data Latitude"" type=""search support"">%value%</note>"
+GIS Data Longitude,"<note displayLabel=""GIS Data Longitude"" type=""search support"">%value%</note>"
+Image Note,"<note displayLabel=""Image Note"">%value%</note>"
+Map URL,"<note displayLabel=""Map URL"">%value%</note>"
+Original Description (From Book),"<note displayLabel=""Original Description (From Book)"">%value%</note>"
+Original Note (From Book),"<note displayLabel=""Original Note (From Book)"">%value%</note>"
+Residents/Owners,"<note displayLabel=""Residents/Owners"" type=""search support"">%value%</note>"
+Section of Jackson Ward TOC,"<note displayLabel=""Section of Jackson Ward TOC"" type=""search support"">%value%</note>"
+Transcription,"<note displayLabel=""Transcription"" type=""transcript"">%value%</note>"
+Date Digitized,<originInfo><dateCaptured>%value%</dateCaptured></originInfo>
+Date of Photograph,"<originInfo><dateCreated keyDate=""yes"">%value%</dateCreated></originInfo>"
+Publication Date,<originInfo><dateIssued>%value%</dateIssued></originInfo>
+Publisher,<originInfo><publisher>%value%</publisher></originInfo>
+Original Image Size,<physicalDescription><extent>%value%</extent></physicalDescription>
+Physical Description,<physicalDescription><extent>%value%</extent></physicalDescription>
+Original Image Medium,<physicalDescription><form>%value%</form></physicalDescription>
+Digital File Type,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Original Publication,"<relatedItem displayLabel=""Original Publication"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Architectural Features,"<subject authority=""aat"" displayLabel=""Architectural Features""><topic>%value%</topic></subject>"
+Architectural Style,"<subject authority=""aat"" displayLabel=""Architectural Style""><topic>%value%</topic></subject>"
+Type of Building,"<subject authority=""aat"" displayLabel=""Type of Building""><topic>%value%</topic></subject>"
+City/Location,"<subject authority=""lcsh"" displayLabel=""City/Location""><geographic>%value%</geographic></subject>"
+Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Date of Construction,"<subject displayLabel=""Date of Construction""><temporal encoding=""edtf"">%value%</temporal></subject>"
+GIS Data,"<subject displayLabel=""GIS Data""><cartographics><coordinates>%value%</coordinates></cartographics></subject>"
+Related Organizations,"<subject displayLabel=""Related Organizations""><name type=""corporate""><namePart>%value%</namePart></name></subject>"
+Residents Owners Families,"<subject displayLabel=""Residents/Owners""><name type=""family""><namePart>%value%</namePart></name></subject>"
+Residents Owners Individuals,"<subject displayLabel=""Residents/Owners""><name type=""personal""><namePart>%value%</namePart></name></subject>"
+Address/Title,"<titleInfo displayLabel=""Address/Title"" usage=""primary""><title>%value%</title></titleInfo>"
+Name of Building,"<titleInfo displayLabel=""Name of Building"" type=""alternative""><title>%value%</title></titleInfo>"
+Resource Type,<typeOfResource>%value%</typeOfResource>
+Type,<typeOfResource>%value%</typeOfResource>

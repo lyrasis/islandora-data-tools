@@ -1,0 +1,34 @@
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Slide Number,"<identifier displayLabel=""Slide Number"" type=""slidenumber"">%value%</identifier>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Author,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">author</roleTerm></role></name>"
+Description,"<note displayLabel=""Description"">%value%</note>"
+Envelope Remarks,"<note displayLabel=""Envelope remarks"">%value%</note>"
+Envelope/Slide Comments,"<note displayLabel=""Envelope/slide comments"">%value%</note>"
+Plant Origin,"<note displayLabel=""Plant origin"">%value%</note>"
+Transcription,"<note displayLabel=""Transcription"" type=""transcript"">%value%</note>"
+Note,<note>%value%</note>
+Envelope/Slide Date,"<originInfo><dateCreated keyDate=""yes"">%value%</dateCreated></originInfo>"
+Date,<originInfo><dateCreated>%value%</dateCreated></originInfo>
+Physical Description,<physicalDescription><extent>%value%</extent></physicalDescription>
+Digital File Type,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Section,"<relatedItem displayLabel=""Section"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Source,"<relatedItem displayLabel=""Source"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+City/Location,"<subject authority=""lcsh"" displayLabel=""City/Location""><geographic>%value%</geographic></subject>"
+Time Period,"<subject authority=""lcsh"" displayLabel=""Time Period""><temporal>%value%</temporal></subject>"
+Geographical Name Subject,"<subject authority=""lcsh""><geographic>%value%</geographic></subject>"
+Topical Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Corporate Name Subject,"<subject><name type=""corporate""><namePart>%value%</namePart></name></subject>"
+Personal Name Subject,"<subject><name type=""personal""><namePart>%value%</namePart></name></subject>"
+Alternative Title,"<titleInfo displayLabel=""Alternative Title"" type=""alternative""><title>%value%</title></titleInfo>"
+Name from Envelope,"<titleInfo displayLabel=""Name from Envelope"" type=""alternative""><title>%value%</title></titleInfo>"
+Title/Common Name,"<titleInfo displayLabel=""Title/Common Name"" usage=""primary""><title>%value%</title></titleInfo>"
+Resource Type,<typeOfResource>%value%</typeOfResource>

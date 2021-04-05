@@ -1,0 +1,11 @@
+= XSL for MIK post-processing
+
+See /mik/configs/snippets/post-process_MODS_with_stylesheets.txt for and /mik/scripts/README on apply_xslt_with_saxon.php for the setup needed to use these.
+
+*cap_initial_genre_subject_letter.xsl*:: Capitalize the first letter of subject and genre nodes (to avoid split facets due to case only). Removes period from the end of non-geographic for the same reason. Affects only nodes that don't have any defined subelements
+*cleanMigratedFromID.xsl*:: For use with CDM migration when you include "include_migrated_from_uri = TRUE". Removes the initial 1 and sets the attributes in the element to something reasonable for a non-URL.
+*deleteBlankNamePart.xsl*:: If <name> has no <namePart>, but does have <role> or something else, delete the whole <name> node. We don't particularly need ",contributor" showing up as a name value.
+*OrderedTemplates.xsl*:: Put MODS elements in a standard order, most important first. Makes sure the right title appears first.
+
+
+

@@ -1,0 +1,3 @@
+= Metadata mappings for MIK
+
+*anc.csv*:: gives example of using InsertXmlFromTemplate metadata manipulator

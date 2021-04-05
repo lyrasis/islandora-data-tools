@@ -1,0 +1,14 @@
+# path to Saxon .jar
+saxon_path: ~/code/saxon9he.jar
+
+# path to the MODS schema you wish to use
+mods_schema: ~/code/migration-miscellany/mik/scripts/post-mik/mods-3-6.xsd
+
+# list paths to the XSL stylesheets you want to use
+stylesheets:
+ - ~/code/mik/extras/lsu/xsl/blankNodes.xsl
+ - ~/code/mik/extras/lsu/xsl/titleNonSort.xsl
+ - ~/code/migration-miscellany/mik/stylesheets/deleteBlankNamePart.xsl
+ - ~/code/migration-miscellany/mik/stylesheets/OrderedTemplates.xsl
+ - ~/code/migration-miscellany/mik/stylesheets/cap_initial_genre_subject_letter.xsl
+ - ~/code/migration-miscellany/mik/stylesheets/cleanMigratedFromID.xsl

@@ -1,0 +1,29 @@
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Issue Number,"<identifier displayLabel=""Issue Number"" type=""voliss"">%value%</identifier>"
+Volume Number,"<identifier displayLabel=""Volume Number"" type=""voliss"">%value%</identifier>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Day of Publication,"<note displayLabel=""Day Published"" type=""date"">%value%</note>"
+Date Digitized,"<originInfo><dateCaptured encoding=""marc"">%value%</dateCaptured></originInfo>"
+Date Published,"<originInfo><dateIssued keyDate=""yes"" point=""start"">%value%</dateIssued></originInfo>"
+End Date,"<originInfo><dateIssued point=""end"">%value%</dateIssued></originInfo>"
+Publication Dates,<originInfo><dateIssued>%value%</dateIssued></originInfo>
+Frequency,<originInfo><frequency>%value%</frequency></originInfo>
+Publisher,<originInfo><publisher>%value%</publisher></originInfo>
+Original Item Size,<physicalDescription><extent>%value%</extent></physicalDescription>
+Original Item Medium,"<physicalDescription><form type=""material"">%value%</form></physicalDescription>"
+Digital Format,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Related Resource,"<relatedItem displayLabel=""Related Resource""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Identifier,"<relatedItem displayLabel=""Source"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Coverage,"<subject authority=""lcsh"" displayLabel=""Coverage""><geographic>%value%</geographic></subject>"
+Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Front Page Headlines,"<tableOfContents displayLabel=""Front Page Headlines"" type=""partial contents"">%value%</tableOfContents>"
+Title,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Type,<typeOfResource>%value%</typeOfResource>

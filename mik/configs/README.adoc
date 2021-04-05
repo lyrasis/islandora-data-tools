@@ -1,0 +1,4 @@
+= MIK configs
+
+*.ini files*:: full MIK config files for various uses
+*snippets*:: useful lines to add to config files in development

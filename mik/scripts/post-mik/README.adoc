@@ -1,0 +1,64 @@
+= Post-MIK processing
+
+Apply XSLT transformations and MODS validation all at once after MIK runs, instead of using postwritehooks.
+
+== Why?
+MIK provides ability to run postwritehook scripts which I previously was using several XSLT transformation via Saxon, and validating MODS.
+
+These hooks are run on each object's MODS individually after it is written.
+
+Monitoring load average on the server while running MIK with these postwritehooks, I noticed big spikes every time java/Saxon was called. Multiple Java threads would be spawned for each transformation, and CPU use would bounce up to 100%.
+
+Java is great for big, resource-intensive processes, but it is extremely resource intensive to spin up a JVM for every single transformation of every single MODS file (of which there can be thousands). This approach seemed woefully inefficient.
+
+One of the resources here is time: running each transformation separately for just 177 MODS files took over one hour and ten minutes.
+
+Also, the postwritehook scripts as distributed with MIK did not support postwrite MODS manipulation for compound objects. I'd tweaked copies of them to support compound objects, but the performance was still awful.
+
+== How is this different?
+You'd run it after the MIK process (with no postwritehooks for transformations/validations) completes. The required parameter is our MIK output directory (-t or --targetdir). Depending on other parameters/options given, it: 
+
+* If given -b / --backup option: Backs up all your MODS files to a backup directory
+* If given --transform option: For each XSL transformation listed in config file:
+** Copies all the MODS files to a single temp directory
+** Runs the transformations _on the directory_ instead of on each file, writing the output to a second temp directory
+** Logs successful transformations _and_ unsuccessful ones (with full error output) in xsl_processing.log
+** Moves the transformed files back to their appropriate locations in your given MIK output directory
+** Removes the temp directories
+* If given --validate option:
+** Validates all MODS against schema given in config file
+** Logs valid files and all errors to validation.log
+
+The performance gain is *drastic* for the transformations. On my test set of over 177 files, each transformation took only a couple of seconds when called on the directory. The load on the server still spikes but briefly, and only once instead of 177 * number of XSLs applied.
+
+*This works for both simple and compound objects.* The process of recursively copying all MODS from the MIK output directory to a temp directory captures any directory hierarchy in the temp file name. `mikdir/111/112/MODS.xml` is copied to `tmp_in/111-112-MODS.xml`. After transformation, this structured filename is parsed to move the transformed file back to `mikdir/111/112/MODS.xml`.
+
+Backup directory and logs are written to the directory of which your target MIK output directory is a child. For instance, if you ran this script with `-t /home/me/collection/mik-output`, your backup and logs will be in `/home/me/collection`.
+
+== Downsides (for now)
+This is an extra step to manually run after MIK and checking its output.
+
+Not incredibly well-tested. (Back up your MIK output folder before using?)
+
+Has some extra Ruby dependencies I've not yet nicely bundled up.
+
+== Setup and use
+Copy `config.yaml.example` to `config.yaml` and make any necessary changes. (The comments in the file help).
+
+Install the following Ruby gems if you don't have them (`gem install {name}`):
+
+* nokogiri
+* progressbar
+* slop
+
+In the `migration-miscellany/mik/scripts/post-mik` directory, run `ruby post-mik.rb --help` to see list of options.
+
+To do everything in one go, you would run:
+
+`ruby post-mik.rb --backup --transform --validate --targetdir /path/to/mik/output`
+
+Unless you delete or rename your backup directory, the script will only successfully run with the `--backup` option the first time you run it with that option. This is to avoid overwriting your actual original MODS files with files transformed in a previous operation.
+
+Unless you have manually backed up your entire output directory, you should never run with `--transform` without (or before) running with `--backup`.
+
+If you are dealing with compound objects, backing up your entire output directory is preferable. The directory structure of the MODS location is captured in the backup MODS file name, but there's currently no method to move backed up files back into the proper directory structure.

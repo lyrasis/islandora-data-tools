@@ -1,0 +1,18 @@
+Description,"<abstract displayLabel=""Description"">%value%</abstract>"
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Author,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">author</roleTerm></role></name>"
+Date of Meeting,"<originInfo><dateOther keyDate=""yes"">%value%</dateOther></originInfo>"
+Length,<physicalDescription><extent>%value%</extent></physicalDescription>
+Format,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Coverage,"<subject authority=""lcsh"" displayLabel=""Coverage""><geographic>%value%</geographic></subject>"
+Subject,"<subject authority=""naf""><name type=""corporate""><namePart>%value%</namePart></name></subject>"
+Title,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Type,<typeOfResource>%value%</typeOfResource>

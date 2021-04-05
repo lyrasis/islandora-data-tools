@@ -1,0 +1,27 @@
+Description,"<abstract displayLabel=""Description"" type=""subject"">%value%</abstract>"
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Original Image Medium,"<physicalDescription><form type=""material"">%value%</form></physicalDescription>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Inscription From Back of Photograph,"<note displayLabel=""Inscription from Back of Photograph"" type=""inscription"">%value%</note>"
+Note,<note>%value%</note>
+Date,"<originInfo><dateCreated keyDate=""yes"">%value%</dateCreated></originInfo>"
+Digital File Type,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Source,"<relatedItem displayLabel=""Source"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+City/Location,"<subject authority=""lcsh"" displayLabel=""City/Location""><geographic>%value%</geographic></subject>"
+Event Location,"<subject displayLabel=""Event Location""><geographic>%value%</geographic></subject>"
+Time Period,"<subject authority=""lcsh"" displayLabel=""Time Period""><temporal>%value%</temporal></subject>"
+Geographical Subject,"<subject authority=""lcsh""><geographic>%value%</geographic></subject>"
+Topical Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Corporate Name Subject,"<subject><name type=""corporate""><namePart>%value%</namePart></name></subject>"
+Personal Name Subject,"<subject><name type=""personal""><namePart>%value%</namePart></name></subject>"
+Other Title,"<titleInfo displayLabel=""Other Title"" type=""alternative""><title>%value%</title></titleInfo>"
+Title,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Resource Type,<typeOfResource>%value%</typeOfResource>

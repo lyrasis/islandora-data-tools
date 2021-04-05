@@ -1,0 +1,6 @@
+= Twig XML templates
+
+For use with `InsertXmlFromTemplate` metadata manipulator, documented https://github.com/MarcusBarnes/mik/wiki/Metadata-manipulator:-InsertXmlFromTemplate[here].
+
+*vcu-anc-native_subject.xml*:: example of using twig if statements, based on presence/value of a field
+*vcu-anc-plant_species.xml*:: combine two source fields (genus + specific epithet) into one target MODS field which is the plant species

@@ -1,0 +1,24 @@
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+Identifier,"<classification authority=""lcc"" displayLabel=""LC Call Number"">%value%</classification>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Additional Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Author,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">author</roleTerm></role></name>"
+Transcription,"<note displayLabel=""Transcription"" type=""transcript"">%value%</note>"
+Note,<note>%value%</note>
+Publication Date,"<originInfo><dateIssued keyDate=""yes"">%value%</dateIssued></originInfo>"
+Publisher,<originInfo><publisher>%value%</publisher></originInfo>
+Physical Description,<physicalDescription><extent>%value%</extent></physicalDescription>
+Digital File Type,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Original Publication,"<relatedItem displayLabel=""Original Publication"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Related Resource,"<relatedItem displayLabel=""Related Resource"" type=""series""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Series Title,"<relatedItem type=""series""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+City Location,"<subject authority=""lcsh"" displayLabel=""City Location""><geographic>%value%</geographic></subject>"
+Geographic Subject,"<subject authority=""lcsh""><geographic>%value%</geographic></subject>"
+Topical Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Medical Subject,"<subject authority=""mesh""><topic>%value%</topic></subject>"
+Title,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Resource Type,<typeOfResource>%value%</typeOfResource>

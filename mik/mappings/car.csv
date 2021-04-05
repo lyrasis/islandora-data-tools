@@ -1,0 +1,29 @@
+Topics Covered,"<abstract displayLabel=""Topics Covered"" type=""subject"">%value%</abstract>"
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Additional Contributor,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Contributor,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Additional Interviewee,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">interviewee</roleTerm></role></name>"
+Interviewee,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">interviewee</roleTerm></role></name>"
+Additional Interviewer,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">interviewer</roleTerm></role></name>"
+Interviewer,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">interviewer</roleTerm></role></name>"
+About the Interview,"<note displayLabel=""About the Interview"">%value%</note>"
+Transcription of Interview,"<note displayLabel=""Transcription"" type=""transcript"">%value%</note>"
+Date Created,<originInfo><dateCaptured>%value%</dateCaptured></originInfo>
+Date of Interview,"<originInfo><dateCreated keyDate=""yes"">%value%</dateCreated></originInfo>"
+Audio File Size and Duration,<physicalDescription><extent>%value%</extent></physicalDescription>
+Transcription,<physicalDescription><extent>%value%</extent></physicalDescription>
+Audio File Format,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Transcription File Format,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Source,"<relatedItem displayLabel=""Source"" type=""original""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Coverage,"<subject authority=""lcsh"" displayLabel=""Coverage""><geographic>%value%</geographic></subject>"
+Subject,"<subject><name type=""personal""><namePart>%value%</namePart></name></subject>"
+Subjects,<subject><topic>%value%</topic></subject>
+Title,"<titleInfo usage=""primary""><title>%value%</title></titleInfo>"
+Type,<typeOfResource>%value%</typeOfResource>

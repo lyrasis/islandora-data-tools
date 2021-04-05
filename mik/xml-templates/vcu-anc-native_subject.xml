@@ -1,0 +1,11 @@
+{% set origin = native|lower %}
+{% if origin == 'native' %}
+<subject>
+  <topic>Native plants</topic>
+</subject>
+{% endif %}
+{% if origin == 'introduced' %}
+<subject>
+  <topic>Introduced plants</topic>
+</subject>
+{% endif %}

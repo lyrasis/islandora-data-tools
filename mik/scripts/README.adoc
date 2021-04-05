@@ -1,0 +1,7 @@
+= MIK scripts
+
+*apply_xslt_with_saxon.php*:: Copied from the MIK repo, modified to work for compound objects, and the location of Saxon hardcoded in the last few lines. You will need to https://sourceforge.net/projects/saxon/files/Saxon-HE/9.9/[download the latest version of the free Saxon-HE from Sourceforge], unzip it, and put the Saxon .jar file somewhere the script can find it. (As of 2019-10-02, this file is called `saxon9he.jar`.) It's the path to this file that you will need to put in the script.
+
+*post-mik*:: apply XSLT transformations and MODS validation all at once after MIK runs, instead of using postwritehooks. See README in directory for details.
+
+*validate_mods.php*:: Copied from the MIK repo and modified to work for compound objects.

@@ -1,0 +1,3 @@
+= MIK stuff
+
+For working with https://github.com/MarcusBarnes/mik[Move to Islandora Toolkit (MIK)].

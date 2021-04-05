@@ -1,0 +1,24 @@
+Rights Statement URL,"<accessCondition displayLabel=""Rights Statement URL"" type=""use and reproduction"">%value%</accessCondition>"
+Rights Statement,"<accessCondition displayLabel=""Rights Statement"" type=""use and reproduction"">%value%</accessCondition>"
+Rights,"<accessCondition displayLabel=""Rights"" type=""use and reproduction"">%value%</accessCondition>"
+LC Classification,"<classification authority=""lcc"" displayLabel=""LC Classification"">%value%</classification>"
+Local Genre,"<genre authority=""local"">%value%</genre>"
+Issue Number,"<identifier displayLabel=""Issue Number"" type=""voliss"">%value%</identifier>"
+Language,<language><languageTerm>%value%</languageTerm></language>
+Contributor,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">contributor</roleTerm></role></name>"
+Digital Publisher,"<name type=""corporate""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">publisher</roleTerm></role></name>"
+Author,"<name type=""personal""><namePart>%value%</namePart><role><roleTerm authority=""marcrelator"" type=""text"">author</roleTerm></role></name>"
+Note,<note>%value%</note>
+Date Digitized,<originInfo><dateCaptured>%value%</dateCaptured></originInfo>
+Date Published,"<originInfo><dateIssued keyDate=""yes"">%value%</dateIssued></originInfo>"
+Publisher,<originInfo><publisher>%value%</publisher></originInfo>
+Original Item Size,<physicalDescription><extent>%value%</extent></physicalDescription>
+Original Item Medium,"<physicalDescription><form type=""material"">%value%</form></physicalDescription>"
+Digital Format,<physicalDescription><internetMediaType>%value%</internetMediaType></physicalDescription>
+Digitization Process,"<physicalDescription><note displayLabel=""Digitization Process"">%value%</note></physicalDescription>"
+Collection,"<relatedItem displayLabel=""Collection"" type=""host""><titleInfo><title>%value%</title></titleInfo></relatedItem>"
+Related Resource,"<relatedItem displayLabel=""Related Resource""><name type=""corporate""><namePart>Virginia Commonwealth University</namePart></name><titleInfo><title>Commonwealth times</title></titleInfo><originInfo><place><placeTerm type=""text"">Richmond, Va</placeTerm></place><publisher>Virginia Commonwealth University</publisher></originInfo></relatedItem>"
+Subject,"<subject authority=""lcsh""><topic>%value%</topic></subject>"
+Title of Story,"<titleInfo displayLabel=""Title of Story"" usage=""primary""><title>%value%</title></titleInfo>"
+Title,<titleInfo><title>%value%</title></titleInfo>
+Type,<typeOfResource>%value%</typeOfResource>
