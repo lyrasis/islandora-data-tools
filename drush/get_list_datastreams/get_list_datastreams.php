@@ -2,14 +2,14 @@
 
 // // // Variables to change
 // Full path to text file of PIDs
-$pids = '/home/kristina/code/islandora-data-tools/data/pids.txt';
+$pids = '/opt/migrations/imods/ids_pvld_2021-04-26.txt';
 
 // Directory where datastream content will be saved
-$savedir = "/home/kristina/code/islandora-data-tools/data/pdfs";
+$savedir = "/opt/migrations/imods/pvld";
 
 // Name of datastream you want to grab
 // See: https://wiki.duraspace.org/display/ISLANDORA/APPENDIX+C+-+DATASTREAM+REFERENCE
-$dsid = 'OBJ';
+$dsid = 'MODS';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
@@ -43,7 +43,11 @@ if (!islandora_object_load($pid)) {
     array('!dsid' => $dsid, '!pid' => $pid)),
     'warning');
   return FALSE;
- } else {
+ } elseif (!isset($obj[$dsid])) {
+  drush_log(dt("!dsid does not exist for object !pid does not exist. !dsid not retrieved",
+    array('!dsid' => $dsid, '!pid' => $pid)),
+    'warning');
+   } else {
 
 $obj = islandora_object_load($pid);
     $datastream = $obj[$dsid];
