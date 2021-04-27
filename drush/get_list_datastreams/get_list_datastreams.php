@@ -2,14 +2,14 @@
 
 // // // Variables to change
 // Full path to text file of PIDs
-$pids = '/home/kristina/code/islandora-data-tools/data/pids.txt';
+$pids = '/opt/migrations/imods/ids_unmc_2021-04-27.txt';
 
 // Directory where datastream content will be saved
-$savedir = "/home/kristina/code/islandora-data-tools/data/pdfs";
+$savedir = "/opt/migrations/imods/unmc";
 
 // Name of datastream you want to grab
 // See: https://wiki.duraspace.org/display/ISLANDORA/APPENDIX+C+-+DATASTREAM+REFERENCE
-$dsid = 'OBJ';
+$dsid = 'MODS';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
@@ -44,8 +44,13 @@ if (!islandora_object_load($pid)) {
     'warning');
   return FALSE;
  } else {
+    $obj = islandora_object_load($pid);
 
-$obj = islandora_object_load($pid);
+    if (!isset($obj[$dsid])) {
+      drush_log(dt("!dsid does not exist for object !pid does not exist. !dsid not retrieved",
+      array('!dsid' => $dsid, '!pid' => $pid)),
+      'warning');
+    } else {
     $datastream = $obj[$dsid];
     switch ($dsid) {
     case 'MODS':
@@ -58,6 +63,7 @@ $obj = islandora_object_load($pid);
     $mimetype = $datastream->mimetype;
     $path = "$path/$pid$suffix";
     $datastream->getContent($path);
+  }
  }
 }
 
