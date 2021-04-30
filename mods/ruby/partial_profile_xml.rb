@@ -41,8 +41,8 @@ Dir::mkdir(VALUESPATH) unless Dir::exist?(VALUESPATH)
 FileUtils.rm_rf(Dir.glob("#{VALUESPATH}/*"))
 logpath = "#{PROFILEPATH}/profile_log.txt"
 LOG = Logger.new(logpath)
-WRITE_CHECK_THRESHOLD = 50
-BATCH_WRITE_THRESHOLD = 100
+WRITE_CHECK_THRESHOLD = 2500
+BATCH_WRITE_THRESHOLD = 5000
 
 class ProfilingManager
   attr_reader :file_count, :err_count, :profile
