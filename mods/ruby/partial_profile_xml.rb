@@ -14,9 +14,6 @@ gemfile do
   gem 'facets', require: false
 end
 
-require 'facets/array/before'
-require 'facets/hash/deep_merge'
-
 options = {}
 OptionParser.new{ |opts|
   opts.banner = 'Usage: ruby profile_xml.rb -i {input_dir}'
@@ -44,8 +41,8 @@ Dir::mkdir(VALUESPATH) unless Dir::exist?(VALUESPATH)
 FileUtils.rm_rf(Dir.glob("#{VALUESPATH}/*"))
 logpath = "#{PROFILEPATH}/profile_log.txt"
 LOG = Logger.new(logpath)
-WRITE_CHECK_THRESHOLD = 100
-BATCH_WRITE_THRESHOLD = 200
+WRITE_CHECK_THRESHOLD = 50
+BATCH_WRITE_THRESHOLD = 100
 
 class ProfilingManager
   attr_reader :file_count, :err_count, :profile
@@ -77,7 +74,7 @@ class ProfilingManager
     puts 'Post-processing and reporting...'
     @profile.each{ |xpath, valhash| write_values(xpath, valhash) }
     clean_xpaths
-    @profile.transform_values!{ |value| value = {occs: 0, uniqs: 0} }
+    @profile.transform_values!{ |hash|{ occs: hash[:occurrences], uniqs: 0 } }
     deduplicate_value_files
     generate_stats
     rename_tmp_files
@@ -91,7 +88,7 @@ class ProfilingManager
     occlabel = 'OCCURRENCES'
     uniqlabel = 'UNIQUES'
     puts "      \t#{occlabel}\t#{uniqlabel}\tXPATH"
-    @profile.keys.each do |xpath|
+    @profile.keys.sort.each do |xpath|
       occs = @profile[xpath][:occs]
       uniqs = @profile[xpath][:uniqs]
       occ = occs.to_s.rjust(occlabel.length, ' ')
@@ -159,7 +156,6 @@ class ProfilingManager
 
   def xpath_stats(xpath, values)
     @profile[xpath][:uniqs] = values.keys.length
-    @profile[xpath][:occs] = values.map{ |k, v| v[:occurrences].to_i }.sum
   end
   
   def clean_xpaths
@@ -387,7 +383,9 @@ class FileProfiler
   end
 end
 
+beginning = Time.now
 pm = ProfilingManager.new(dir: options[:input], strip: options[:strip])
 pm.process
 pm.report_summary
-
+puts ''
+puts "Run time: #{Time.now - beginning} seconds"
