@@ -1,5 +1,6 @@
 require 'bundler/inline'
 require 'csv'
+require 'fileutils'
 require 'json'
 require 'logger'
 require 'optparse'
@@ -13,9 +14,6 @@ gemfile do
   gem 'facets', require: false
 end
 
-require 'facets/array/before'
-require 'facets/hash/deep_merge'
-
 options = {}
 OptionParser.new{ |opts|
   opts.banner = 'Usage: ruby profile_xml.rb -i {input_dir}'
@@ -27,6 +25,9 @@ OptionParser.new{ |opts|
       exit
     end
   }
+  opts.on('-s', '--strip STRING', 'string indicating node to strip from beginning of xpaths'){ |s|
+    options[:strip] = s.split(',')
+  }
   opts.on('-h', '--help', 'Prints this help'){
     puts opts
     exit
@@ -34,18 +35,26 @@ OptionParser.new{ |opts|
 }.parse!
 
 PROFILEPATH = "#{options[:input]}/profile"
+VALUESPATH = "#{PROFILEPATH}/values"
 Dir::mkdir(PROFILEPATH) unless Dir::exist?(PROFILEPATH)
+Dir::mkdir(VALUESPATH) unless Dir::exist?(VALUESPATH)
+FileUtils.rm_rf(Dir.glob("#{VALUESPATH}/*"))
 logpath = "#{PROFILEPATH}/profile_log.txt"
 LOG = Logger.new(logpath)
+WRITE_CHECK_THRESHOLD = 2500
+BATCH_WRITE_THRESHOLD = 5000
 
 class ProfilingManager
   attr_reader :file_count, :err_count, :profile
-  def initialize(dir:)
+  def initialize(dir:, strip:)
     @dir = dir
+    @strip = strip || []
     @files = get_files
     @file_count = @files.length
     @err_count = 0
     @profile = {}
+    @xpaths = []
+    @write_counts = {}
   end
 
   def process
@@ -55,16 +64,20 @@ class ProfilingManager
                                   :format => '%a |%b>>%i| %p%% %t')
     puts ''
 
-    @root = get_doc(@files.first).root.path
-    
     @files.each do |file|
-      doc = get_doc(file)
-      fp = FileProfiler.new(xml: doc, path: file)
-      @profile = profile.deep_merge(fp.profile)
+      fileprofiler = FileProfiler.new(xml: get_doc(file), path: file)
+      merge_file_profile(fileprofiler)
       progress.increment
+      write_values_over_threshold if progress.progress.modulo(WRITE_CHECK_THRESHOLD) == 0
     end
     progress.finish
-    profile.transform_keys!{ |k| k.sub("#{@root}/", '') }
+    puts 'Post-processing and reporting...'
+    @profile.each{ |xpath, valhash| write_values(xpath, valhash) }
+    clean_xpaths
+    @profile.transform_values!{ |hash|{ occs: hash[:occurrences], uniqs: 0 } }
+    deduplicate_value_files
+    generate_stats
+    rename_tmp_files
   end
 
   def report_elements_and_attributes_used
@@ -75,54 +88,186 @@ class ProfilingManager
     occlabel = 'OCCURRENCES'
     uniqlabel = 'UNIQUES'
     puts "      \t#{occlabel}\t#{uniqlabel}\tXPATH"
-    xpaths.each do |xpath|
-      data = profile[xpath]
-      occ = occurrences(data).to_s.rjust(occlabel.length, ' ')
-      uniq = uniques(data).to_s.rjust(uniqlabel.length, ' ')
-      puts "#{label(data)}\t#{occ}\t#{uniq}\t#{xpath}"
-    end
-  end
-
-  def report_values
-    occlabel = 'OCCURRENCES'
-    CSV.open("#{PROFILEPATH}/values_report.csv", 'wb', headers: true) do |csv|
-      csv <<  ['XPATH', occlabel, 'VALUE', 'FILE EXAMPLES']
-      xpaths.each do |xpath|
-        data = profile[xpath]
-        xpath_values(data[:values]).each do |val|
-          csv << [xpath, val[:occ], val[:val], val[:ex]]
-        end
-      end
+    @profile.keys.sort.each do |xpath|
+      occs = @profile[xpath][:occs]
+      uniqs = @profile[xpath][:uniqs]
+      occ = occs.to_s.rjust(occlabel.length, ' ')
+      uniq = uniqs.to_s.rjust(uniqlabel.length, ' ')
+      puts "#{label(uniqs, occs)}\t#{occ}\t#{uniq}\t#{xpath}"
     end
   end
 
   private
 
+  def rename_tmp_files
+    Pathname.new(VALUESPATH).each_child{ |filepath| rename_tmp_file(filepath) }
+  end
+
+  def rename_tmp_file(filepath)
+    FileUtils.mv(filepath, filepath.sub('/tmp_', '/')) if filepath.to_s['/tmp_']
+  end
+  
+  def deduplicate_value_files
+    to_dedupe = @write_counts.select{ |xpath, count| count > 1 }.keys
+    to_dedupe.each{ |xpath| deduplicate_value_file(xpath) }
+  end
+
+  def deduplicate_value_file(xpath)
+    tmpfile = xpath_filename(xpath)
+    finalfile = tmpfile.sub('tmp_', '')
+
+    values = file_values(tmpfile)
+
+    File.open(finalfile, 'a') do |target|
+      values.each do |val, info|
+        target.write("#{info[:occurrences]}|||#{info[:example_files].join('^^^')}|||#{val}\n")
+      end
+    end
+
+    FileUtils.rm(tmpfile)
+    xpath_stats(xpath, values)
+  end
+
+  def generate_stats
+    to_process = @write_counts.select{ |xpath, count| count == 1 }.keys
+    to_process.each do |xpath|
+      values = file_values(xpath_filename(xpath))
+      xpath_stats(xpath, values)
+    end
+  end
+
+  def file_values(path)
+    values = {}
+    
+    File.readlines(path).each do |line|
+      splitline = line.chomp!.split('|||')
+      occs, exs, val = splitline[0], splitline[1].split('^^^'), splitline[2]
+      if values.key?(val)
+        values[val][:occurrences] += occs
+        values[val][:example_files] << exs
+        values[val][:example_files].flatten
+      else
+        values[val] = {occurrences: occs, example_files: exs}
+      end
+    end
+
+    values
+  end
+
+  def xpath_stats(xpath, values)
+    @profile[xpath][:uniqs] = values.keys.length
+  end
+  
+  def clean_xpaths
+    @profile.transform_keys!{ |k| clean_xpath(k) }
+    @write_counts.transform_keys!{ |k| clean_xpath(k) }
+  end
+
+  def clean_xpath(xpath)
+    xp = xpath.dup
+    @strip.each{ |topnode| xp.sub!(/^\/#{topnode}/, '') }
+    xp.sub!(/^\//, '')
+  end
+
+  def write_values_over_threshold
+    xpaths_over_value_threshold.each do |xpath, valhash|
+      write_values(xpath, valhash)
+      clear_xpath_values(xpath)
+    end
+  end
+
+  def clear_xpath_values(xpath)
+    @profile[xpath][:values] = {}
+  end
+
+  def xpath_filename(xpath)
+    "#{VALUESPATH}/tmp_#{xpath.gsub('/', '_')}.txt"
+  end
+  
+  def write_values(xpath, valhash)
+    File.open(xpath_filename(clean_xpath(xpath)), 'a') do |valfile|
+      valhash[:values].each do |value, info|
+        valfile.write("#{info[:occurrences]}|||#{info[:example_files].join('^^^')}|||#{value}\n")
+      end
+    end
+    @write_counts[xpath] += 1
+  end
+  
+  def xpaths_over_value_threshold
+    @profile.select{ |xpath, hash| hash[:values].keys.length > BATCH_WRITE_THRESHOLD }
+  end
+  
+  def merge_file_profile(fileprofiler)
+    fileprofiler.profile.keys.each{ |xpath| merge_xpath_data(fileprofiler, xpath) }
+  end
+
+  def merge_xpath_data(fileprofiler, xpath)
+    unless @profile.key?(xpath)
+      create_profile_xpath(xpath)
+      @write_counts[xpath] = 0
+    end
+
+    update_node_occurrences(fileprofiler, xpath)
+    
+    fileprofiler.profile[xpath][:values].each do |valkey, valval|
+      merge_xpath_value(value: valkey, xpath: xpath, file: fileprofiler.name)
+    end
+  end
+
+  def update_node_occurrences(fileprofiler, xpath)
+    @profile[xpath][:occurrences] += fileprofiler.profile[xpath][:occurrences]
+  end
+  
+  def create_profile_xpath(xpath)
+    @profile[xpath] = {occurrences: 0, values: {}}
+  end
+  
+  def merge_xpath_value(value:, xpath:, file:)
+    setup_xpath_value(value: value, xpath: xpath) unless value_present?(value, xpath)
+    target = @profile[xpath][:values][value]
+    increment_value_occurrences(target)
+    add_value_example(target, file) unless sufficient_examples?(value, xpath)
+  end
+
+  def add_value_example(target, file)
+    target[:example_files] << file
+  end
+
+  def increment_value_occurrences(target)
+    target[:occurrences] += 1
+  end
+
+  def setup_xpath_value(value:, xpath:)
+    @profile[xpath][:values][value] = {occurrences: 0, example_files: []}
+  end
+
+  def value_present?(value, xpath)
+    return false unless @profile.key?(xpath)
+
+    @profile[xpath][:values].key?(value)
+  end
+
+  def sufficient_examples?(value, xpath)
+    return false unless @profile.key?(xpath)
+    return false unless @profile[xpath][:values].key?(value)
+    
+    @profile[xpath][:values][value][:example_files].length == 3
+  end
+  
   def xpath_values(valhash)
     arr = []
     valhash.each{ |val, files| arr << {occ: files.length, val: val, ex: files.first(3).join(', ')} }
     arr
   end
 
-  def label(path_data)
-    vals = path_data[:values]
-    occs = occurrences(path_data)
-    
-    if vals.length == 1 && occs > 1
+  def label(uniqs, occs)
+    if uniqs == 1 && occs > 1
       'CONST'
-    elsif occs > 1 && uniques(path_data) == occs 
+    elsif occs > 1 && uniqs == occs 
       'ID   '
     else
       '     '
     end
-  end
-
-  def uniques(path_data)
-    path_data[:values].keys.length
-  end
-
-  def occurrences(path_data)
-    path_data[:values].values.flatten.length
   end
   
   def get_doc(path)
@@ -150,17 +295,21 @@ class ProfilingManager
 end
 
 class FileProfiler
-  attr_reader :profile
+  attr_reader :name
   def initialize(xml:, path:)
     @doc = xml
     @name = path.split('/').last.sub('.xml', '').to_sym
-    @profile = init_profile
-    populate_profile
-    @doc = nil
   end
 
+  def profile
+    @profile ||= populate_profile
+  end
+
+  private
+  
   def populate_profile
-    profile.each do |path, h|
+    @profile = init_profile
+    @profile.each do |path, h|
       if h.keys.any?(:type) && h[:type] == :attribute
         populate_attribute(path)
       else
@@ -171,22 +320,22 @@ class FileProfiler
 
   def populate_attribute(path)
     @doc.xpath(path).each do |node|
-      base = profile[path][:values]
-      value = node.value
-      base.key?(value) ? base[value] << @name : base[value] = [@name]
+      base = @profile[path]
+      base[:values][node.value] = nil
+      base[:occurrences] += 1
     end
   end
 
   def populate_text(path)
     @doc.xpath(path).each do |node|
-      base = profile[path][:values]
-      value = node.text
-      base.key?(value) ? base[value] << @name : base[value] = [@name]
+      base = @profile[path]
+      base[:values][node.text.gsub("\t", ' ').gsub("\n", ' ')] = nil
+      base[:occurrences] += 1
     end
   end
   
   def init_profile
-    h = xpaths.map{ |p| [p, { :values => {} }] }.to_h
+    h = xpaths.map{ |p| [p, { occurrences: 0, values: {} }] }.to_h
     h.keys.select{ |k| k['/@'] }.each do |path|
       h[path][:type] = :attribute
       h[path][:name] = path.sub(/^.*\/@/, '')
@@ -234,7 +383,9 @@ class FileProfiler
   end
 end
 
-pm = ProfilingManager.new(dir: options[:input])
+beginning = Time.now
+pm = ProfilingManager.new(dir: options[:input], strip: options[:strip])
 pm.process
 pm.report_summary
-pm.report_values
+puts ''
+puts "Run time: #{Time.now - beginning} seconds"
