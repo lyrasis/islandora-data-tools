@@ -54,7 +54,8 @@ File.readlines(options[:clients]).each do |line|
   client = line.chomp
   modsdir = "#{options[:mods]}/#{client}_clean"
   if Dir::exist?(modsdir)
-    command = "ruby profile_xml.rb -i #{modsdir}"
+    puts "Profiling #{client}..."
+    `ruby profile_xml.rb -i #{modsdir}`
     $?.exitstatus == 0 ? report['Profiled'] << client : report['Profiling failed'] << client
   else
     report['No MODS'] << client
