@@ -10,7 +10,7 @@ end
 
 options = {}
 optparse = OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby profile_client_mods.rb -c {clientfile} -m {modsdir}'
+  opts.banner = 'Usage: ruby client_mods_profile.rb -c {clientfile} -m {modsdir}'
 
   opts.on('-c', '--clients STRING', 'REQUIRED: Path to text file containing client list'){ |c|
     options[:clients] = File.expand_path(c)
