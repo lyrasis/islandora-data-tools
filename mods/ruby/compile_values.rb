@@ -76,9 +76,10 @@ class InputFile
 
   VAL_THRESHOLD = 5000
   
-  def initialize(path:, added:)
+  def initialize(path:, added:, strip:)
     @path = path
     @added = added
+    @strip = strip
     @values = []
   end
 
@@ -102,7 +103,9 @@ class InputFile
   end
 
   def xpath
-    @path.basename.to_s.sub('.txt', '').gsub('_', '/')
+    val = @path.basename.to_s.sub('.txt', '').gsub('_', '/')
+    @strip.each{ |removestr| val = val.sub(/^#{removestr}\//, '') }
+    val
   end
 end
 
@@ -131,13 +134,14 @@ class InputDir
     @path = Pathname.new(opts.input)
     @added = opts.added
     @pattern = opts.pattern
+    @strip = opts.strip
   end
 
   def files
     return @path.children.map{ |child| InputFile.new(path: child, added: @added) } if @pattern.nil?
     
     matching = @path.children.select{ |child| child.to_s[@pattern] }
-    matching.map{ |child| InputFile.new(path: child, added: @added) } 
+    matching.map{ |child| InputFile.new(path: child, added: @added, strip: @strip ) } 
   end
 end
 
