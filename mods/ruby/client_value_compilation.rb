@@ -10,7 +10,7 @@ end
 
 options = {}
 optparse = OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby profile_client_mods.rb -c {clientfile} -m {modsdir}'
+  opts.banner = 'Usage: ruby client_value_compilation.rb -c {clientfile} -m {modsdir}'
 
   opts.on('-c', '--clients STRING', 'REQUIRED: Path to text file containing client list'){ |c|
     options[:clients] = File.expand_path(c)
@@ -25,6 +25,16 @@ optparse = OptionParser.new{ |opts|
       puts "Not a valid directory: #{m}"
       exit
     end
+  }
+  opts.on('-o', '--output STRING', 'REQUIRED: Path to directory in which to write output file. Will be written to input directory if not specified.'){ |o|
+    Dir::mkdir(o) unless Dir::exist?(o)	
+    options[:output] = File.expand_path(o)
+  }
+  opts.on('-p', '--pattern STRING', 'OPTIONAL: Match pattern in filename. Use to compile values from subset of elements.'){ |p|
+    options[:pattern] = p
+  }
+  opts.on('-s', '--strip STRING', 'OPTIONAL: string indicating node to strip from beginning of xpaths/filenames'){ |s|
+    options[:strip] = s.split(',')
   }
   opts.on('-h', '--help', 'Prints this help'){
     puts opts
@@ -45,18 +55,19 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 end
 
 report = {
-  'Profiled' => [],
+  'Compiled' => [],
   'No MODS' => [],
-  'Profiling failed' => []
+  'Compilation failed' => []
 }
 
 File.readlines(options[:clients]).each do |line|
   client = line.chomp
-  modsdir = "#{options[:mods]}/#{client}_clean"
-  if Dir::exist?(modsdir)
-    puts "Profiling #{client}..."
-    `ruby profile_xml.rb -i #{modsdir}`
-    $?.exitstatus == 0 ? report['Profiled'] << client : report['Profiling failed'] << client
+  valdir = "#{options[:mods]}/#{client}_clean/profile/values"
+  if Dir::exist?(valdir)
+    puts "Compiling #{client}..."
+    cmd = "ruby compile_values.rb -i #{valdir} -o #{options[:output]} -p #{options[:pattern]} -a #{client} -s mods"
+    status = system(cmd)
+    $?.exitstatus == 0 ? report['Compiled'] << client : report['Compilation failed'] << client
   else
     report['No MODS'] << client
   end
