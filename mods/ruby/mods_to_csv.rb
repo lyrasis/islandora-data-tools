@@ -6,6 +6,7 @@ require 'pp'
 require 'bundler/inline'
 gemfile do
   source 'https://rubygems.org'
+  gem 'progressbar', '>= 1.10.1'
   gem 'nokogiri', '>= 1.10.4'
   gem 'pry', '>= 0.13.0'
 end
@@ -97,8 +98,6 @@ OptionParser.new{ |opts|
   }
 
 }.parse!
-
-mods_files = Dir.children(File.expand_path(options[:modsdir])).select{ |name| name['.xml'] }
 
 def make_headers(config)
   headers = ['id']
@@ -250,6 +249,13 @@ def get_column_values(column, rownodes, hdr)
   return [hdr.sub('/', '').strip, values.join(';;; ')]
 end
 
+mods_files = Dir.children(File.expand_path(options[:modsdir])).select{ |name| name['.xml'] }
+file_count = mods_files.length
+
+puts "Profiling #{file_count} files\n\n"
+progress = ProgressBar.create(:starting_at => 0,
+                              :total => file_count,
+                              :format => '%a |%b>>%i| %p%% %t')
 
 header =  make_headers(config)
 CSV.open(options[:csvpath], 'wb'){ |csv|
@@ -266,6 +272,8 @@ CSV.open(options[:csvpath], 'wb'){ |csv|
         ct += 1
       }
     }
+    progress.increment
   }
 }
+progress.finish
 
