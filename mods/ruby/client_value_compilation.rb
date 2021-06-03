@@ -79,3 +79,9 @@ report.each do |category, clients|
   puts "#{category}:"
   clients.each{ |client| puts "  #{client}" }
 end
+
+unless Pathname.new(options[:output]).children.empty?
+  target = "#{options[:pattern]}_values.csv"
+  cmd = "cat #{options[:output]}/*.csv > #{options[:output]}/#{target}"
+  system(cmd)
+end
