@@ -2,7 +2,7 @@
 
 // // // Variables to change
 // Full path to text file of PIDs of object and target colls
-$pids = '/Users/kristina/data/aip/obj_colls.txt';
+$pids = '/opt/migrations/aip/testpid.txt';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
@@ -29,16 +29,15 @@ $tuque = islandora_get_tuque_connection();
 $repository = $tuque->repository;
 
 foreach ($splitlines as $line) {
-    $collpids = array();
     $objpid = $line[0];
     $object = get_object($objpid);
 
     if ($object) {
-      array_push($collpids, explode("^^", $line[1]));
-      check_and_set_collections($object, $collpids)
+      $collpids = explode("^^", $line[1]);
+      check_and_set_collections($object, $collpids);
     } else {
       drush_log(dt("Object !pid does not exist. Collections cannot be updated",
-        array('!pid' => $pid)),
+        array('!pid' => $objpid)),
         'warning');
       continue;
     }
@@ -49,17 +48,33 @@ function check_and_set_collections($object, $colls)
   $rels = $object->relationships;
 
   foreach ($colls as $coll) {
-    $collobj = get_object($coll)
+    $collobj = get_object($coll);
 
     if ($collobj) {
-      set_collection($rels, $coll);
+      if(!in_collection($rels, $coll)) {
+        set_collection($rels, $coll);
+      }
     } else {
       drush_log(dt("Collection !coll does not exist. !object cannot be added to this collection.",
-        array('!coll' => $coll, '!object' => $object->id),
+        array('!coll' => $coll, '!object' => $object->id)),
         'warning');
       continue;
     }
   }
+}
+
+function in_collection($rels, $coll)
+{
+  $incolls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
+  $parentarrs = array();
+  $colls = array();
+  foreach ($incolls as $membership) {
+    array_push($parentarrs, $membership['object']);
+  }
+  foreach ($parentarrs as $parentarr) {
+    array_push($colls, $parentarr['value']);
+  }
+  return in_array($coll, $colls);
 }
 
 function set_collection($rels, $coll)
