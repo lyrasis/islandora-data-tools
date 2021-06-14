@@ -2,13 +2,13 @@
 
 // // // Variables to change
 // Full path to text file of PIDs of object and target colls
-$pids = '/opt/migrations/aip/testpid.txt';
+$input = '/opt/migrations/aip/testpid.txt';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
 $linelist = array();
 
-$fn = fopen($pids, 'r');
+$fn = fopen($input, 'r');
 
 while(!feof($fn)) {
     $line = fgets($fn);
