@@ -1,0 +1,21 @@
+= assign_obj_to_coll.php
+
+== In-script variables to customize
+
+`$input`:: full path to text file listing PIDs of objects and the collections to which they should be added. See below for format
+
+=== Format of input file
+
+* One row per object to be added to collection(s)
+* Separate object PID from collection PID(s) with `|`
+* If object should be added to multiple collections, separate collections with `^^`
+
+ ns:1|ns:coll1^^ns:coll2
+ ns:2|ns:coll2
+
+== Notes on script
+
+* Checks whether object exists before trying to edit relationships. If object does not exist, warning is emitted to Drush STDOUT: `Object ns:99999999 does not exist. Collections cannot be updated`
+* Checks whether each collection exists before trying to add object to it. If a given collection does not exist, warning is emitted to Drush STDOUT: `Collection ns:coll2 does not exist. ns:1 cannot be added to this collection.`
+* If collection exists, checks whether object is already in that collection. If so, does nothing silently. If not, adds object to collection.
+* Adding object to a collection updates the object's RELS-EXT datastream and causes it to be re-indexed

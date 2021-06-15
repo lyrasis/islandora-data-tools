@@ -151,7 +151,7 @@ class OutputCsv
     @pattern = opts.pattern
     @added = opts.added
     @path = "#{@dir}/#{filename}"
-    write_headers
+    @headers_written = false
   end
 
   def path
@@ -159,6 +159,7 @@ class OutputCsv
   end
 
   def write(values)
+    write_headers unless @headers_written
     CSV.open(@path, 'a') do |csv|
       values.each{ |val| csv << val }
     end
@@ -174,6 +175,7 @@ class OutputCsv
 
   def write_headers
     CSV.open(@path, 'w'){ |csv| csv << headers }
+    @headers_written = true
   end
   
   def filename
@@ -191,9 +193,11 @@ outfile = OutputCsv.new(opts)
 puts "\n\nWill write to #{outfile.path}"
 
 dir = InputDir.new(opts)
-dir.files.each do |file|
-  puts "Writing values from #{file.path}"
-  file.write_values(outfile)
+unless dir.files.empty?
+  dir.files.each do |file|
+    puts "Writing values from #{file.path}"
+    file.write_values(outfile)
+  end
 end
   
 

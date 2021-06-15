@@ -6,6 +6,7 @@ require 'pp'
 require 'bundler/inline'
 gemfile do
   source 'https://rubygems.org'
+  gem 'progressbar', '>= 1.10.1'
   gem 'nokogiri', '>= 1.10.4'
   gem 'pry', '>= 0.13.0'
 end
@@ -60,48 +61,73 @@ prefix) returns the value of that attribute on that node.
 =end
 
 config = {
-    'mods:titleInfo' => {
-      'self' => ['@type', '@usage', 'value of mods:title', 'value of mods:partNumber', 'value of mods:partName'],
-      #   'mods:title' => ['value']
-    },
-    # 'mods:relatedItem' => {
-    #   'mods:titleInfo/mods:title' => ['value']
-    # },
+  #   'mods:accessCondition'=> {
+  #    'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
+  #               '@lang', '@xml:lang', '@script', '@transliteration']
+  # },
+  'mods:originInfo' => {
+    'self' => ['@eventType'],
+    'mods:copyrightDate' => ['@encoding', 'value'],
+    'mods:dateCaptured' => ['@encoding', '@keyDate', 'value'],
+    'mods:dateCreated' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
+    'mods:dateIssued' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
+    'mods:dateOther' => ['@encoding', '@keyDate', '@qualifier', 'value'],
+    'mods:dateModified' => ['value'],
+    'mods:dateValid' => ['value'],
+    'mods:edition' => ['value'],
+    'mods:frequency' => ['@authority', 'value'],
+    'mods:issuance' => ['value'],
+    'mods:place/mods:placeTerm' => ['@authority', '@type', 'value'],
+    'mods:publisher' => ['value']
+  },
+  # 'mods:originInfo/mods:place/mods:placeTerm' => {
+  #   'self' => ['@authority', '@type', 'value']
+  # },
     # 'mods:originInfo/mods:dateCreated' => {
     #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
     # },
     # 'mods:originInfo/mods:dateIssued' => {
     #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
     # },
-    #'mods:accessCondition'=> {
-    #  'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
-    #             '@lang', '@xml:lang', '@script', '@transliteration']
-    # },
     #'mods:part'=>{
     #  'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
     #  'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
     #  'mods:date'=>['value'],
     #  'mods:text'=>['@type', '@displayLabel', 'value']
-    # }
+  # },
+  # 'mods:location'=> {
+  #   'mods:holdingSimple/mods:copyInformation/mods:subLocation' => ['value'],
+  #   'mods:physicalLocation' => ['@type', 'value']
+  # },
+    # 'mods:relatedItem' => {
+    #   'mods:titleInfo/mods:title' => ['value']
+    # },
+    # 'mods:relatedItem/mods:titleInfo' => {
+    #   'self' => ['@displaylabel', '@lang', '@script', '@transliteration', '@type', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
+    # },
+    # 'mods:titleInfo' => {
+    #   'self' => ['@altRepGroup', '@authority', '@displaylabel', '@lang', '@nameTitleGroup', '@script', '@transliteration', '@type', '@usage', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
+    #   # 'mods:title' => ['value']
+    # },
   }
 
 options = {}
 OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby mods_to_csv.rb -m {mods_directory} -c {csv_path}'
+  opts.banner = 'Usage: ruby mods_to_csv.rb -d {mods_directory} -c {csv_path} -m 1'
 
-  opts.on('-m', '--modsdir path_to_modsdir', 'Path to directory containing MODS files'){ |m|
-    options[:modsdir] = m
+  opts.on('-d', '--modsdir path_to_modsdir', 'Path to directory containing MODS files'){ |d|
+    options[:modsdir] = d
   }
   opts.on('-c', '--csvpath path_to_csv ', 'Path to output CSV file'){ |c|
     options[:csvpath] = c
   }
-
+  opts.on('-m', '--min INT', 'Minimum number of occurrences to report'){ |m|
+    options[:min_occs] = m.to_i
+  }
 }.parse!
 
-mods_files = Dir.children(File.expand_path(options[:modsdir])).select{ |name| name['.xml'] }
-
 def make_headers(config)
-  headers = ['id']
+  headers = ['client', 'id', 'occurrences']
   config.each{ |relement, colhash|
     hdr = relement.clone.sub('//', '').gsub('mods:', ' ')
     colhash.each{ |element, columns|
@@ -250,22 +276,41 @@ def get_column_values(column, rownodes, hdr)
   return [hdr.sub('/', '').strip, values.join(';;; ')]
 end
 
+def get_client(id)
+  id.split(/[-:]/).first
+end
+
+
+mods_files = Dir.children(File.expand_path(options[:modsdir])).select{ |name| name['.xml'] }
+file_count = mods_files.length
+
+puts "Compiling from #{file_count} files\n"
+progress = ProgressBar.create(:starting_at => 0,
+                              :total => file_count,
+                              :format => '%a |%b>>%i| %p%% %t')
+
+ct = 0
 
 header =  make_headers(config)
 CSV.open(options[:csvpath], 'wb'){ |csv|
   csv << header
-  ct = 1
   mods_files.each{ |modsfile|
     extract_mods(options[:modsdir], modsfile, config).each{ |id, rowarr|
+      next if rowarr.length < options[:min_occs]
       rowarr.each{ |rhash|
+        ct += 1
         row = CSV::Row.new(header, [])
         row['id'] = id
+        client = get_client(id)
+        row['client'] = client
+        row['occurrences'] = rowarr.length
         rhash.each{ |header, value| row[header] = value }
-        row['sort'] = ct
+        row['sort'] = "#{client}-#{ct.to_s.rjust(9, '0')}"
         csv << row
-        ct += 1
       }
     }
+    progress.increment
   }
 }
-
+progress.finish
+puts "Extracted #{ct} rows.\n\n"

@@ -1,4 +1,6 @@
 require 'bundler/inline'
+require 'csv'
+require 'fileutils'
 require 'pathname'
 require 'optparse'
 require 'pp'
@@ -10,7 +12,7 @@ end
 
 options = {}
 optparse = OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby client_value_compilation.rb -c {clientfile} -m {modsdir}'
+  opts.banner = 'Usage: ruby client_mods_to_csv.rb -c {clientfile} -m {modsdir} -o {outputfile} --minoccs {integer}'
 
   opts.on('-c', '--clients STRING', 'REQUIRED: Path to text file containing client list'){ |c|
     options[:clients] = File.expand_path(c)
@@ -26,15 +28,12 @@ optparse = OptionParser.new{ |opts|
       exit
     end
   }
-  opts.on('-o', '--output STRING', 'REQUIRED: Path to directory in which to write output file. Will be written to input directory if not specified.'){ |o|
+  opts.on('-o', '--output STRING', 'REQUIRED: Path to directory in which to write output file.'){ |o|
     Dir::mkdir(o) unless Dir::exist?(o)	
     options[:output] = File.expand_path(o)
   }
-  opts.on('-p', '--pattern STRING', 'OPTIONAL: Match pattern in filename. Use to compile values from subset of elements.'){ |p|
-    options[:pattern] = p
-  }
-  opts.on('-s', '--strip STRING', 'OPTIONAL: string indicating node to strip from beginning of xpaths/filenames'){ |s|
-    options[:strip] = s.split(',')
+  opts.on('--minoccs INTEGER', 'REQUIRED: Minimum number of occurrences per record to trigger writing to output. Use 1 if you want everything'){ |i|
+    options[:minoccs] = i
   }
   opts.on('-h', '--help', 'Prints this help'){
     puts opts
@@ -43,7 +42,7 @@ optparse = OptionParser.new{ |opts|
 }
 begin
   optparse.parse!
-  required = %i[clients mods]
+  required = %i[clients mods output minoccs]
   missing = required.select{ |param| options[param].nil? }
   unless missing.empty?
     raise OptionParser::MissingArgument.new(missing.join(', '))
@@ -60,12 +59,13 @@ report = {
   'Compilation failed' => []
 }
 
+
 File.readlines(options[:clients]).each do |line|
   client = line.chomp
-  valdir = "#{options[:mods]}/#{client}_clean/profile/values"
-  if Dir::exist?(valdir)
+  modsdir = "#{options[:mods]}/#{client}_clean"
+  if Dir::exist?(modsdir)
     puts "Compiling #{client}..."
-    cmd = "ruby compile_values.rb -i #{valdir} -o #{options[:output]} -p #{options[:pattern]} -a #{client} -s mods"
+    cmd = "ruby mods_to_csv.rb -d #{modsdir} -c #{options[:output]}/#{client}.csv -m #{options[:minoccs]}"
     status = system(cmd)
     $?.exitstatus == 0 ? report['Compiled'] << client : report['Compilation failed'] << client
   else
@@ -81,7 +81,17 @@ report.each do |category, clients|
 end
 
 unless Pathname.new(options[:output]).children.empty?
-  target = "#{options[:pattern]}_values.csv"
-  cmd = "cat #{options[:output]}/*.csv > #{options[:output]}/#{target}"
+  cmd = "cat #{options[:output]}/*.csv > #{options[:output]}/all_tmp.csv"
   system(cmd)
+
+  rowct = 0
+  CSV.open("#{options[:output]}/all.csv", 'wb', headers: true) do |csv|
+    CSV.foreach("#{options[:output]}/all_tmp.csv", headers: true) do |row|
+      rowct += 1
+      csv << row.headers if rowct == 1
+      csv << row unless row['id'] == 'id'
+    end
+  end
+
+  Pathname.new(options[:output]).children.each{ |pathname| FileUtils.rm(pathname) unless pathname.basename.to_s == 'all.csv' }
 end
