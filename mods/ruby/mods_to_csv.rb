@@ -65,21 +65,21 @@ config = {
   #    'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
   #               '@lang', '@xml:lang', '@script', '@transliteration']
   # },
-  'mods:originInfo' => {
-    'self' => ['@eventType'],
-    'mods:copyrightDate' => ['@encoding', 'value'],
-    'mods:dateCaptured' => ['@encoding', '@keyDate', 'value'],
-    'mods:dateCreated' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
-    'mods:dateIssued' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
-    'mods:dateOther' => ['@encoding', '@keyDate', '@qualifier', 'value'],
-    'mods:dateModified' => ['value'],
-    'mods:dateValid' => ['value'],
-    'mods:edition' => ['value'],
-    'mods:frequency' => ['@authority', 'value'],
-    'mods:issuance' => ['value'],
-    'mods:place/mods:placeTerm' => ['@authority', '@type', 'value'],
-    'mods:publisher' => ['value']
-  },
+  # 'mods:originInfo' => {
+  #   'self' => ['@eventType'],
+  #   'mods:copyrightDate' => ['@encoding', 'value'],
+  #   'mods:dateCaptured' => ['@encoding', '@keyDate', 'value'],
+  #   'mods:dateCreated' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
+  #   'mods:dateIssued' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
+  #   'mods:dateOther' => ['@encoding', '@keyDate', '@qualifier', 'value'],
+  #   'mods:dateModified' => ['value'],
+  #   'mods:dateValid' => ['value'],
+  #   'mods:edition' => ['value'],
+  #   'mods:frequency' => ['@authority', 'value'],
+  #   'mods:issuance' => ['value'],
+  #   'mods:place/mods:placeTerm' => ['@authority', '@type', 'value'],
+  #   'mods:publisher' => ['value']
+  # },
   # 'mods:originInfo/mods:place/mods:placeTerm' => {
   #   'self' => ['@authority', '@type', 'value']
   # },
@@ -104,7 +104,24 @@ config = {
     # },
     # 'mods:relatedItem/mods:titleInfo' => {
     #   'self' => ['@displaylabel', '@lang', '@script', '@transliteration', '@type', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
-    # },
+  # },
+  # 'mods:subject' => {
+  #   'self' => ['@authority'],
+  #   'mods:genre' => ['value'],
+  #   'mods:geographic' => ['value'],
+  #   'mods:name' => ['@authority', '@type', '@valueURI'],
+  #   'mods:name/mods:namePart' => ['@type', 'value'],
+  #   'mods:name/mods:role/mods:roleTerm' => ['@authority', '@type', 'value'],
+  #   'mods:occupation' => ['value'],
+  #   'mods:temporal' => ['value'],
+  #   'mods:titleInfo' => ['value'],
+  #   'mods:topic' => ['value']
+  # },
+  'mods:extension/etd:degree' => {
+    'etd:name' => ['value'],
+    'etd:level' => ['value'],
+    'etd:discipline' => ['value']
+  }
     # 'mods:titleInfo' => {
     #   'self' => ['@altRepGroup', '@authority', '@displaylabel', '@lang', '@nameTitleGroup', '@script', '@transliteration', '@type', '@usage', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
     #   # 'mods:title' => ['value']
@@ -173,10 +190,18 @@ def extract_mods(modspath, modsfile, xpaths)
     Log.warn("#{modsfile} - Cannot add MODS namespace definition. Check it out?")
     return {id => []}
   end
-  
+
+  begin
+    mods.add_namespace_definition('etd', 'http://www.ndltd.org/standards/metadata/etdms/1.0') unless mods.namespaces.has_key?('xmlns:etd')
+  rescue
+    Log.warn("#{modsfile} - Cannot add ETD namespace definition. Check it out?")
+    return {id => []}
+  end
+
   modsdata = []
   xpaths.each{ |relement, colhash|
-    hdr = relement.clone.sub('//', '').gsub('mods:', ' ')
+    hdr = relement.clone.sub('//', '').gsub(/(mods|etd):/, ' ')
+    
     rownodes = mods.xpath(relement)
     if rownodes.length > 0
       rownodes.each{ |rownode|
