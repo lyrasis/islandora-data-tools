@@ -3,7 +3,7 @@
 
 `ruby list_invalid_or_malformed_objs.rb -i {input_dir}`
 
-`input_dir`:: path to directory containing TECHMD datastream XML files named using convention: `namespace-id.xml`
+`input_dir`:: path to directory containing TECHMD datastream XML files named using convention: `namespace-id.xml` or `namespace:id.xml`
 
 Output will be a logfile written to `input_dir\_results.log`. Output lines are formatted like:
 
