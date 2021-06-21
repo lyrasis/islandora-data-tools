@@ -1,0 +1,17 @@
+= Get list of object PIDs
+
+Typically, the quickest/easiest way to do this is with a Solr query.
+
+Solr gives you a number of ways to flexibly define what objects you want. You can get just the PIDs, or retrieve PID with another piece of information from the Solr document to create a lookup from title or external identifier to Islandora PID.
+
+
+== All PIDs for basic image content model objects in a given collection with PID client:parentcoll
+
+
+http://localhost:9876/solr/collection1/select?q=ancestors_ms%3Aclient%5c%3aparentcoll%20AND%20RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3Asp_basic_image&fl=PID&wt=csv&rows=30000
+
+Make sure number after `rows=` is greater than expected number of objects
+
+== Same as above, but also output the Catalog ID field to create a PID lookup table
+
+http://localhost:9876/solr/collection1/select?q=ancestors_ms%3Aclient%5c%3aparentcoll%20AND%20RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3Asp_basic_image&fl=PID,mods_identifier_Catalog_ID_ss&wt=csv&rows=30000
