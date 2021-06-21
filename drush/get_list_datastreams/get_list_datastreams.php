@@ -2,14 +2,14 @@
 
 // // // Variables to change
 // Full path to text file of PIDs
-$pids = '/opt/migrations/imods/ids_unmc_2021-04-27.txt';
+$pids = '/opt/migrations/project/obj_pids.txt';
 
 // Directory where datastream content will be saved
-$savedir = "/opt/migrations/imods/unmc";
+$savedir = "/opt/migrations/project/techmd";
 
 // Name of datastream you want to grab
 // See: https://wiki.duraspace.org/display/ISLANDORA/APPENDIX+C+-+DATASTREAM+REFERENCE
-$dsid = 'MODS';
+$dsid = 'TECHMD';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
@@ -54,6 +54,9 @@ if (!islandora_object_load($pid)) {
     $datastream = $obj[$dsid];
     switch ($dsid) {
     case 'MODS':
+        $suffix = '.xml';
+        break;
+    case 'TECHMD':
         $suffix = '.xml';
         break;
     case 'OBJ':
