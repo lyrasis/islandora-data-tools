@@ -5,7 +5,7 @@
 `$pids`:: full path to text file containing PIDs of objects for which you want to grab the objects (`namespace:id`)
 `$savedir`:: full path to directory where datastreams will be saved
 `$dsid`:: dsid of datastream to download
-
+`$logpath`:: path to log file
 
 [IMPORTANT]
 ====
@@ -15,3 +15,9 @@
 
 These updates are trivial to make.
 ====
+
+A progress bar will be shown in the terminal window where you start the script.
+
+Tail your log file to see any warnings as they happen.
+
+ tail -f path/to/log.txt
