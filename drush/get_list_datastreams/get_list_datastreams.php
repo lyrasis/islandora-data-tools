@@ -2,17 +2,20 @@
 
 // // // Variables to change
 // Full path to text file of PIDs
-$pids = '/opt/migrations/project/obj_pids.txt';
+$pids = '/opt/migrations/project/mods_pids.txt';
 
 // Directory where datastream content will be saved
-$savedir = "/opt/migrations/project/techmd";
+$savedir = "/opt/migrations/project/mods";
 
 // Name of datastream you want to grab
 // See: https://wiki.duraspace.org/display/ISLANDORA/APPENDIX+C+-+DATASTREAM+REFERENCE
-$dsid = 'TECHMD';
+$dsid = 'MODS';
 
 // Path to log file (which replaces drush log)
-$logpath = "/opt/migrations/osl/log.txt";
+$logpath = "/opt/migrations/project/log.txt";
+
+// Path to log file (which replaces drush log)
+$logpath = "/opt/migrations/project/log.txt";
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
@@ -55,14 +58,14 @@ foreach ($cleanpids as $pid) {
 function get_and_write_datastream($pid, $dsid, $path, $logpath) {
 if (!islandora_object_load($pid)) {
   $warning = "Object $pid does not exist. $dsid not retrieved.";
-  write_to_log($logpath, $warning);
+  write_to_log($logpath, $warning, "warning");
   return FALSE;
  } else {
     $obj = islandora_object_load($pid);
 
     if (!isset($obj[$dsid])) {
       $warning = "$dsid does not exist for object $pid, so was not retrieved.";
-      write_to_log($logpath, $warning);
+      write_to_log($logpath, $warning, "warning");
       return FALSE;
     } else {
     $datastream = $obj[$dsid];
@@ -80,13 +83,16 @@ if (!islandora_object_load($pid)) {
     $mimetype = $datastream->mimetype;
     $path = "$path/$pid$suffix";
     $datastream->getContent($path);
+
+    $message = "Harvested $dsid for $pid.";
+    write_to_log($logpath, $message, 'info');
   }
  }
 }
 
-function write_to_log($logpath, $warning) {
+function write_to_log($logpath, $message, $type) {
   $log = fopen($logpath, "a");
-  fwrite($log, "$warning\n");
+  fwrite($log, "$type:\t$message\n");
   fclose($log);
 }
 
