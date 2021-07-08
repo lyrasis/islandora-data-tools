@@ -1,4 +1,10 @@
+:toc:
+:toc-placement!:
+:toclevels: 4
+
 = Get list of object PIDs
+
+toc::[]
 
 Typically, the quickest/easiest way to do this is with a Solr query.
 
