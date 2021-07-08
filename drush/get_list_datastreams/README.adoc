@@ -7,4 +7,11 @@
 `$dsid`:: dsid of datastream to download
 
 
-WARNING: Currently only OBJ datastream for PDFs is supported. Adding another datastream or file type will require updating the `get_suffix` function, but this is trivial!
+[IMPORTANT]
+====
+*Currently only MODS, TECHMD, and OBJ datastreams are supported.* Adding another datastream type will require updating the `get_and_write_datastream` function with the correct file suffix.
+
+*Currently only PDF OBJ datastream download is supported.* Adding another datastream or file type will require updating the `get_suffix` function.
+
+These updates are trivial to make.
+====
