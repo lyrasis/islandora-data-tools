@@ -1,0 +1,19 @@
+= Find missing or corrupted thumbnails
+
+== Find missing thumbnails
+
+Use a Solr query to identify objects for which a TN derivative was not created.
+
+This example query will search the entire repository for objects without thumbnails. It returns the PID of any objects missing a thumbnail, a list of the datastreams the object _does_ have, the object's content model, and the collection(s) of which the object is a member. 
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3ATN&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+
+== Find blank/corrupted thumbnails
+
+This process is handled via a list of object PIDs.
+
+* https://github.com/lyrasis/islandora-data-tools/blob/main/workflows/get_list_of_object_pids.adoc[Get list of object PIDs]
+* Run https://github.com/lyrasis/islandora-data-tools/tree/main/drush/report_bad_TNs[islandora-data-tools/drush/report_bad_TNs]
+* Download output file from migration server to your machine
+* Open as CSV and sort by filesize, looking for 0 byte or other extremely small files
