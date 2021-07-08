@@ -12,7 +12,7 @@ end
 
 # path to default MODS schema to use for validation
 #SCHEMAPATH = '~/data/islandora/mods/mods_3_6_schema.xsd'
-SCHEMAPATH = '~/data/islandora/mods/mods_3_7_schema.xsd'
+SCHEMAPATH = '~/data/mods_3_7_schema.xsd'
 
 options = {}
 OptionParser.new{ |opts|
