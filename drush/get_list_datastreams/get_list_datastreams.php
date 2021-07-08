@@ -13,6 +13,10 @@ $dsid = 'TECHMD';
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
+//Store the micro time so that we know
+//when our script started to run.
+$executionStartTime = microtime(true);
+
 $pidlist = array();
 
 $fn = fopen($pids, 'r');
@@ -23,6 +27,7 @@ while(!feof($fn)) {
 }
 
 $cleanpids = array_filter($pidlist, 'strlen');
+$pid_ct = count($cleanpids);
 
 if(!is_dir($savedir)){
     mkdir($savedir);
@@ -32,8 +37,12 @@ drupal_static_reset('islandora_get_tuque_connection');
 $tuque = islandora_get_tuque_connection();
 $repository = $tuque->repository;
 
+$progresscounter = 0;
+
 foreach ($cleanpids as $pid) {
+    $progresscounter = ++$progresscounter;
     get_and_write_datastream($pid, $dsid, $savedir);
+    echo progress_bar($progresscounter, $pid_ct, 'Progress');
 }
 
 function get_and_write_datastream($pid, $dsid, $path)
@@ -77,6 +86,12 @@ function get_suffix($mimetype)
         return '.pdf';
         break;
     }
+}
+
+function progress_bar($done, $total, $info="", $width=50) {
+    $perc = round(($done * 100) / $total);
+    $bar = round(($width * $perc) / 100);
+    return sprintf("%s%%[%s>%s]%s\n", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), $info);
 }
 
 
