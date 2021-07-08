@@ -89,11 +89,14 @@ config = {
     # 'mods:originInfo/mods:dateIssued' => {
     #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
     # },
-    #'mods:part'=>{
-    #  'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
-    #  'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
-    #  'mods:date'=>['value'],
-    #  'mods:text'=>['@type', '@displayLabel', 'value']
+    'mods:part'=>{
+     'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
+     'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
+     'mods:date'=>['value'],
+#     'mods:text'=>['@type', '@displayLabel', 'value']
+  },
+  # 'mods:physicalDescription/mods:form'=>{
+  #   'self'=>['@authority', '@type', 'value']
   # },
   # 'mods:location'=> {
   #   'mods:holdingSimple/mods:copyInformation/mods:subLocation' => ['value'],
@@ -117,11 +120,11 @@ config = {
   #   'mods:titleInfo' => ['value'],
   #   'mods:topic' => ['value']
   # },
-  'mods:extension/etd:degree' => {
-    'etd:name' => ['value'],
-    'etd:level' => ['value'],
-    'etd:discipline' => ['value']
-  }
+  # 'mods:extension/etd:degree' => {
+  #   'etd:name' => ['value'],
+  #   'etd:level' => ['value'],
+  #   'etd:discipline' => ['value']
+  # },
     # 'mods:titleInfo' => {
     #   'self' => ['@altRepGroup', '@authority', '@displaylabel', '@lang', '@nameTitleGroup', '@script', '@transliteration', '@type', '@usage', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
     #   # 'mods:title' => ['value']
