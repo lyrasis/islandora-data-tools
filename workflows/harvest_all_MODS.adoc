@@ -1,0 +1,10 @@
+= Harvest all MODS datastreams for a given client
+
+This process is handled via a list of object PIDs.
+
+This process downloads the current version of the MODS datastreams. 
+
+* https://github.com/lyrasis/islandora-data-tools/blob/main/workflows/get_list_of_object_pids.adoc#list-pids-of-all-objects-in-repository-that-have-a-mods-datastream[Get list of object PIDs having MODS datastreams]
+* Download MODS datastreams for those PIDs
+** Use https://github.com/lyrasis/islandora-data-tools/tree/main/drush/get_list_datastreams[islandora-data-tools/drussh/get_list_datastreams] with `$dsid` variable set to `MODS`
+
