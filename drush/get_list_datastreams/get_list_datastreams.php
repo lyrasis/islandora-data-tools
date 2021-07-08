@@ -91,8 +91,18 @@ function get_suffix($mimetype)
 function progress_bar($done, $total, $info="", $width=50) {
     $perc = round(($done * 100) / $total);
     $bar = round(($width * $perc) / 100);
-    return sprintf("%s%%[%s>%s]%s\n", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), $info);
+    return sprintf("%s%%[%s>%s]%s\r", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), $info);
 }
 
+//At the end of your code, compare the current
+//microtime to the microtime that we stored
+//at the beginning of the script.
+$executionEndTime = microtime(true);
+
+//The result will be in seconds and milliseconds.
+$seconds = $executionEndTime - $executionStartTime;
+
+//Print it out
+echo "\n\nThis script took $seconds to execute.";
 
 ?>
