@@ -18,6 +18,12 @@ These updates are trivial to make.
 
 A progress bar will be shown in the terminal window where you start the script.
 
-Tail your log file to see any warnings as they happen.
+Log file records successfully retrieved files and warnings.
+
+Tail your log file to watch all progress.
 
  tail -f path/to/log.txt
+
+To monitor for errors as they happen:
+
+ watch -n 3 -d 'grep -E '^warning:' log.txt'
