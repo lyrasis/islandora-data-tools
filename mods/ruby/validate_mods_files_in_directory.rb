@@ -27,9 +27,9 @@ OptionParser.new{ |opts|
   }
   opts.on('-s', '--schema [SCHEMA]', 'Path to MODS schema file.'){ |s|
     if s.nil?
-      options[:schema] = SCHEMAPATH
-    elsif File.file?(s)
-      options[:schema] = s
+      options[:schema] = File.expand_path(SCHEMAPATH)
+    elsif File.file?(File.expand_path(s))
+      options[:schema] = File.expand_path(s)
     else
       puts "Schema file does not exist at: #{s}"
     end
@@ -44,7 +44,7 @@ modspath = options[:input]
 logpath = "#{modspath}/validation_log.txt"
 log = Logger.new(logpath)
 
-schemapath = File.expand_path(SCHEMAPATH)
+schemapath = options[:schema]
 schema = Nokogiri::XML::Schema(File.read(schemapath))
 
 modsfiles = Dir.new(modspath).children
