@@ -1,8 +1,20 @@
 = Ruby scripts for manipulating MODS
 
+Most of these scripts will give you the usage info if you type `ruby {script_name.rb} -h` at the command line.
+
+The scripts beginning with `client` are wrappers around other scripts, allowing you to provide a list of clients in a text file, and then run the given script against all those clients' MODS. This requires some conventions be followed, and some unwritten assumptions are probably buried in these scripts. Most of these are things like: all client MODS directories will follow a consistent naming convention and be located in the same parent folder. The profiling script will have created a `profile/values` directory inside each client MODS directory. Etc. 
+
+*client_mods_profile.rb*:: Runs `profile_xml.rb` across all clients listed in a given text file.
+*client_mods_to_csv.rb*:: Runs `mods_to_csv.rb` across all clients listed in a given text file.
+*client_value_compilation.rb*:: Runs `compile_values.rb` across all clients listed in a given text file.
+*compile_values.rb*:: Compiles values from text files created by `profile_xml.rb` in the `profile/values` directory. Selects files matching a certain pattern (which is based on xpath from which the values were extracted) and produces a CSV file reporting on the values.
 *generate_test_objects_for_mods.rb*:: It is fairly cheap/easy to generate a bunch of MODS for testing. This lets you pick a little image somewhere and add it to the MODS directory once per MODS file, named such that you can use ZIP importer to batch import the test set as basic image content model
+*longest_occurrence.rb*:: Given path to CSV and a column name or list of column names, will report the length of the longest value in the specified column(s). If given a multivalue delimiter, will split the column values and report the longest single/split value.
 *map_islandora_CDM_ids.rb*:: Point this at a directory of Islandora MODS and get a text file with lines in the following format for each MODS file: "Islandora PID\tCONTENTdm ID". Change the path to the MODS directory in the script. Map file (islandora_cdm_id_map.txt) will be saved in parent directory of MODS directory.
 *merge_creato.rb*:: Merges the `creato` field value from CDM record into the current MODS record, writes out new version of MODS record. Makes a lot of assumptions, and you need to have source files in place. See script for details on setup. Very specific to the MODS name element. The XML parsing part will need to be redone for handling other fields, but this gives a pattern to go on.
 *merge_transcript.rb*:: Merges the `transc` field value from CDM record into the current MODS record, writes out new version of MODS record. Makes a lot of assumptions, and you need to have source files in place. See script for details on setup.
 *mods_to_csv.rb*:: Extract specified element and attribute values from .xml files in given directory, to a CSV. You must edit the `config` hash in the code to control what values are reported and how.
+*profile_xml.rb*:: Given a directory containing XML files, will create a `profile` directory inside the given directory. A `values` directory is created inside `profile`. A log is written to `profile`, a profile summary is written to standard output, and, for each element and attribute used, a .txt file listing all unique values used, and up to 3 XML files in which that value was used, are written in the `values` directory.
+*remove_blank_attributes.rb*:: Strip blank attributes and save resulting XML files to a new directory. It is recommended you run this prior to using `validate_mods_files_in_directory.rb`, since there is (or was) a known issue where Islandora XML forms were adding blank attribute values that were not getting cleaned out by the form-save-triggered XSL that was supposed to clean those out.
 *split_field.rb*:: Split multi-valued fields in existing MODS datastreams. Currenly works for selected MODS fields.
+*validate_mods_in_directory.rb*:: Validates all MODS files in a directory. Writes a summary report to standard output and writes a detailed `validataion_log.txt`
