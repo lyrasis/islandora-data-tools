@@ -4,6 +4,7 @@ Most of these scripts will give you the usage info if you type `ruby {script_nam
 
 The scripts beginning with `client` are wrappers around other scripts, allowing you to provide a list of clients in a text file, and then run the wrapped script against all those clients' MODS. This requires some conventions be followed, and some unwritten assumptions are probably buried in these scripts. Most of these are things like: all client MODS directories will follow a consistent naming convention and be located in the same parent folder. The profiling script will have created a `profile/values` directory inside each client MODS directory. Etc. 
 
+*altRepGroup_analysis.rb*:: Produces some specific reports on `altRepGroup` usage in a set of MODS records. See script code comments for details.
 *client_mods_profile.rb*:: Runs `profile_xml.rb` across all clients listed in a given text file.
 *client_mods_to_csv.rb*:: Runs `mods_to_csv.rb` across all clients listed in a given text file.
 *client_value_compilation.rb*:: Runs `compile_values.rb` across all clients listed in a given text file.
