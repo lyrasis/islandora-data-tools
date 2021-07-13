@@ -204,12 +204,8 @@ class AltRepGroup
     elements.length > 2
   end
   
-  def normal_processable?
-    has_matching_elements? && is_pair? && matching_xpaths? && processable_scripts?    
-  end
-
   def processable?
-    return false unless has_matching_elements?
+    has_matching_elements? && is_pair? && matching_xpaths? && processable_scripts?    
   end
 
   def processable_scripts?
@@ -345,7 +341,19 @@ class Reporter
   end
 
   def non_matching_xpath_groups
-    mods.alt_rep_groups.reject(&:matching_xpaths?).select(&:has_matching_elements?)
+    groups = mods.alt_rep_groups.reject(&:matching_xpaths?).select(&:has_matching_elements?)
+
+    groups.each do |group|
+      puts "\n\n----------------------------------------"
+      puts "#{group.filename}, group #{group.id}"
+      puts "----------------------------------------"
+
+      puts group.elements.join("\n---\n")
+    end
+  end
+
+  def processable
+    mods.alt_rep_groups.select(&:processable?)
   end
 
   def single_element_groups
@@ -451,13 +459,14 @@ end
 # ar.process
 
 reporter = Reporter.new(mods: options[:output])
-mx = reporter.matching_xpath_groups
-nmx = reporter.non_matching_xpath_groups
+pro = reporter.processable
 # # For reporting things that will be ignored
 # reporter = Reporter.new(mods: options[:output])
 # nme = reporter.non_matching_element_groups
 # me = reporter.multi_element_groups
 # us = reporter.unprocessable_script_groups
+# mx = reporter.matching_xpath_groups
+# nmx = reporter.non_matching_xpath_groups
 
 binding.pry
 
