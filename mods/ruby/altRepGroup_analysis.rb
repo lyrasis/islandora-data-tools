@@ -1,4 +1,5 @@
 # standard library
+require 'fileutils'
 require 'optparse'
 require 'pathname'
 
@@ -14,13 +15,19 @@ end
 
 options = {}
 OptionParser.new{ |opts|
-  opts.banner = 'Usage: ruby altRepGroup_analysis.rb -i {input_dir}'
+  opts.banner = 'Usage: ruby altRepGroup_analysis.rb -i {input_dir} -o {output_dir}'
 
   opts.on('-i', '--input INPUTDIR', 'Path to directory containing MODS files to analyze'){ |i|
     options[:input] = Pathname(File.expand_path(i))
     unless options[:input].exist? && options[:input].directory?
       puts "Not a valid input directory: #{options[:input]}"
       exit
+    end
+  }
+  opts.on('-o', '--output INPUTDIR', 'Path to directory in which to save edited MODS'){ |o|
+    options[:output] = Pathname(File.expand_path(o))
+    unless options[:output].exist? && options[:output].directory?
+      FileUtils.mkdir_p(options[:output])
     end
   }
   opts.on('-h', '--help', 'Prints this help'){
@@ -95,8 +102,64 @@ class AltRepElement
     @index, @element, @id, @filename = index, element, id, filename
   end
 
+  def describe
+    "#{filename} -- #{id} -- #{index} -- #{name}"
+  end
+  
+  def empty?
+    element.text.empty?
+  end
+
+  def name
+    element.name
+  end
+  
   def script_type
     classify
+  end
+
+  def signature
+    @signature ||= get_signature
+  end
+
+  def get_signature
+    leaves.map{ |leaf| leaf_print(leaf) }.sort
+  end
+
+  def leaves
+    element.xpath('.//*[not(*)]').to_a
+  end
+
+  def leaf_print(leaf)
+    sig = leaf_signature(leaf)
+    rev = ancestors(leaf).reverse
+    rev << sig
+    rev.join('/')
+  end
+
+  def ancestors(leaf)
+    ignore = %w[document mods]
+    leaf.ancestors
+      .reject{ |lf| ignore.any?(lf.name) }
+      .map{ |anc| leaf_signature(anc) }
+  end
+  
+  def leaf_signature(leaf)
+    ignore = %w[altRepGroup lang script transliteration]
+    sig = []
+    return leaf.name if leaf.attributes.empty?
+
+    sig << leaf.name
+    leaf.attributes.values.each do |attr|
+      next if ignore.any?(attr.name)
+
+      sig << "@#{attr.name}='#{attr.value}'"
+    end
+    sig.join(' ')
+  end
+  
+  def to_s
+    element.to_s
   end
   
   def value
@@ -112,13 +175,17 @@ class AltRepGroup
     @elements = []
     elements.each_with_index{ |e, i| @elements << AltRepElement.new(index: i, element: e, id: id, filename: filename) }
   end
+
+  def duplicate_elements?
+    elements.map(&:to_s).uniq.length == 1 && elements.length > 1
+  end
   
-  def element_name
-    elements.map(&:name).uniq
+  def describe
+    "#{filename} -- #{id} -- #{element_name.join(', ')}"
   end
 
-  def different_scripts?
-    true
+  def element_name
+    elements.map(&:name).uniq
   end
 
   def has_matching_elements?
@@ -130,7 +197,7 @@ class AltRepGroup
   end
 
   def matching_xpaths?
-    true
+    elements.map(&:signature).uniq.length == 1
   end
 
   def multi_element?
@@ -138,23 +205,31 @@ class AltRepGroup
   end
   
   def normal_processable?
-    has_matching_elements? && is_pair? && different_scripts? && matching_xpaths?
+    has_matching_elements? && is_pair? && matching_xpaths? && processable_scripts?    
   end
 
   def processable?
     return false unless has_matching_elements?
   end
 
+  def processable_scripts?
+    script_types == %i[latin vernacular]
+  end
+
   def report(method:)
     report_on(source: elements, method: method, pre: %i[filename id index], post: %i[value])
   end
   
-  def report_all
-    "#{id} -- sz: #{elements.length} -- el: #{element_name.join(', ')} -- xpmatch: #{matching_xpaths?}"
+  def script_types
+    elements.map(&:script_type).sort
   end
 
   def single_element?
     elements.length == 1
+  end
+
+  def unique_elements?
+    elements.map(&:to_s).uniq.length == elements.length
   end
 end
 
@@ -230,7 +305,7 @@ class ModsFile
 
   def extract_alt_rep_groups
     nodes = xml.xpath('//*[@altRepGroup]')
-    return [] if nodes.empty?
+    return AltRepGroups.new(groups: [], filename: name) if nodes.empty?
 
     groups = nodes.group_by{ |n| n['altRepGroup'] }
       .map{ |id, elementset| AltRepGroup.new(id: id, elements: elementset, filename: name) }
@@ -243,10 +318,150 @@ class ModsFile
   end
 end
 
+class Reporter
+  attr_reader :mods
+  def initialize(mods:)
+    @mods = ModsFiles.new(inputdir: mods)
+  end
 
-mods = ModsFiles.new(inputdir: options[:input])
+  def duplicate_elements
+    mods.alt_rep_groups.select(&:duplicate_elements?)
+  end
+  
+  def empty_elements
+    mods.elements.select{ |e| e.empty? }
+  end
 
-m = mods.all.first
-malg = m.alt_rep_groups
+  def matching_xpath_groups
+    mods.alt_rep_groups.select(&:matching_xpaths?)
+  end
+
+  def multi_element_groups
+    mods.alt_rep_groups.select(&:multi_element?)
+  end
+  
+  def non_matching_element_groups
+    mods.alt_rep_groups.reject(&:has_matching_elements?)
+  end
+
+  def non_matching_xpath_groups
+    mods.alt_rep_groups.reject(&:matching_xpaths?).select(&:has_matching_elements?)
+  end
+
+  def single_element_groups
+    mods.alt_rep_groups.select(&:single_element?)
+  end
+
+  def unprocessable_script_groups
+    mods.alt_rep_groups.reject(&:processable_scripts?)
+  end
+end
+
+class XmlEditor
+  attr_reader :dir, :data, :opts
+  def initialize(dir:, data:, **opts)
+    @dir = dir
+    @data = data
+    @opts = opts
+  end
+
+  def process
+    data.each do |datum|
+      doc = read_xml(datum)
+      rev_doc = make_edits(datum, doc)
+      write_xml(datum, rev_doc)
+    end
+  end
+  
+  def read_xml(datum)
+    path = Pathname.new("#{dir}/#{datum.filename}.xml")
+    Nokogiri::XML(path.read, &:noblanks)
+  end
+
+  def write_xml(datum, doc)
+    path = Pathname.new("#{dir}/#{datum.filename}.xml")
+    doc.write_xml_to(path.open('w'))
+  end
+end
+
+class ElementDeleter < XmlEditor
+  def make_edits(element, doc)
+    doc.traverse do |docnode|
+      docnode.remove if docnode.to_s == element.to_s
+    end
+    doc
+  end
+end
+
+class AttributeRemover < XmlEditor
+  attr_reader :attributes
+  def initialize(dir:, data:, attributes:)
+    super
+    @attributes = attributes
+  end
+  
+  def make_edits(group, doc)
+    str_group = group.elements.map(&:to_s)
+    doc.traverse do |docnode|
+      next unless str_group.any?(docnode.to_s)
+
+      attributes.each{|attr_name| docnode.remove_attribute(attr_name) }
+    end
+    doc
+  end
+end
+
+class DeduplicateElements < XmlEditor
+  def make_edits(group, doc)
+    to_delete = doc.xpath("//*[@altRepGroup='#{group.id}']")
+    to_delete.shift
+    
+    doc.traverse do |docnode|
+      next unless docnode.element?
+
+      docnode.remove if to_delete.include?(docnode)  
+    end
+    doc
+  end
+end
+
+
+# copy all processable files to the output folder so we can just read/write from there
+options[:input].children.each do |c|
+  next if File.exist?("#{options[:output].to_s}/#{c.basename}")
+  
+  FileUtils.cp(c, options[:output])
+end
+
+# Delete empty altRepGroup elements
+# reporter = Reporter.new(mods: options[:output])
+# ed = ElementDeleter.new(dir: options[:output], data: reporter.empty_elements)
+# ed.process
+
+# # Remove duplicate elements within altRepGroup
+# reporter = Reporter.new(mods: options[:output])
+# de = DeduplicateElements.new(dir: options[:output], data: reporter.duplicate_elements)
+# de.process
+
+# # Remove attributes from single-element altRep"Group"s
+# reporter = Reporter.new(mods: options[:output])
+# ar = AttributeRemover.new(dir: options[:output],
+#                           data: reporter.single_element_groups,
+#                           attributes: %w[altRepGroup lang script transliteration])
+# ar.process
+
+reporter = Reporter.new(mods: options[:output])
+mx = reporter.matching_xpath_groups
+nmx = reporter.non_matching_xpath_groups
+# # For reporting things that will be ignored
+# reporter = Reporter.new(mods: options[:output])
+# nme = reporter.non_matching_element_groups
+# me = reporter.multi_element_groups
+# us = reporter.unprocessable_script_groups
 
 binding.pry
+
+
+
+
+
