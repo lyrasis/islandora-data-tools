@@ -53,7 +53,7 @@ class ProfilingManager
     @file_count = @files.length
     @err_count = 0
     @profile = {}
-    @xpaths = []
+#    @xpaths = []
     @write_counts = {}
   end
 
