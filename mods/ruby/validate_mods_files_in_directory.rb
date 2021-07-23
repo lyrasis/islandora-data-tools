@@ -48,6 +48,7 @@ logpath = "#{modspath}/validation_log.txt"
 log = Logger.new(logpath)
 
 schemapath = options[:schema]
+schemapath = SCHEMAPATH if schemapath.nil?
 schema = Nokogiri::XML::Schema(File.read(schemapath))
 
 modsfiles = Dir.new(modspath).children
