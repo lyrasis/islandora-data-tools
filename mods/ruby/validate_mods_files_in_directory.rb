@@ -10,9 +10,12 @@ gemfile do
   gem 'pry'
 end
 
-# path to default MODS schema to use for validation
-#SCHEMAPATH = '~/data/islandora/mods/mods_3_6_schema.xsd'
-SCHEMAPATH = '~/data/mods_3_7_schema.xsd'
+# Path to default MODS schema to use for validation if a path is not passed in as an option
+#   when the script is called
+#
+# This should work when script is run on the LYRASIS migration server. If run elsewhere, you
+#   need to pass in the -s/--schema option when you run the script
+SCHEMAPATH = '/opt/migrations/shared/mods/mods_3_7_schema.xsd'
 
 options = {}
 OptionParser.new{ |opts|

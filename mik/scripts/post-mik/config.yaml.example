@@ -1,8 +1,8 @@
 # path to Saxon .jar
-saxon_path: ~/code/saxon9he.jar
+saxon_path: /opt/migrations/shared/saxon/saxon9he.jar
 
 # path to the MODS schema you wish to use
-mods_schema: ~/code/migration-miscellany/mik/scripts/post-mik/mods-3-6.xsd
+mods_schema: /opt/migrations/shared/mods/mods_3_6_schema.xsd
 
 # list paths to the XSL stylesheets you want to use
 stylesheets:
