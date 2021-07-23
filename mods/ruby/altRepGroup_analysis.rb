@@ -7,10 +7,13 @@ require 'pathname'
 require 'bundler/inline'
 gemfile do
   source 'https://rubygems.org'
+  gem 'diffy'
   gem 'nokogiri', '>= 1.10.4'
   gem 'progressbar', '>= 1.10.1'
   gem 'unicode-scripts'
   gem 'pry'
+  gem 'byebug'
+  gem 'pry-byebug'
 end
 
 options = {}
@@ -97,9 +100,10 @@ end
 class AltRepElement
   include ClassifiableScript
 
-  attr_reader :index, :element, :id, :filename
+  attr_reader :index, :element, :id, :filename, :path
   def initialize(index:, element:, id:, filename:)
     @index, @element, @id, @filename = index, element, id, filename
+    @path = element.path
   end
 
   def describe
@@ -196,6 +200,10 @@ class AltRepGroup
     elements.length == 2
   end
 
+  def latin_element
+    elements.select{ |element| element.script_type == :latin }.first
+  end
+
   def matching_xpaths?
     elements.map(&:signature).uniq.length == 1
   end
@@ -226,6 +234,10 @@ class AltRepGroup
 
   def unique_elements?
     elements.map(&:to_s).uniq.length == elements.length
+  end
+
+  def vernacular_element
+    elements.select{ |element| element.script_type == :vernacular }.first
   end
 end
 
@@ -367,99 +379,253 @@ end
 
 class XmlEditor
   attr_reader :dir, :data, :opts
-  def initialize(dir:, data:, **opts)
+  def initialize(dir:, data:, report: false, **opts)
     @dir = dir
     @data = data
+    @report = report
     @opts = opts
   end
 
   def process
-    data.each do |datum|
-      doc = read_xml(datum)
+    data.each do |filename, datum|
+      doc = read_xml(filename)
       rev_doc = make_edits(datum, doc)
-      write_xml(datum, rev_doc)
+      report(filename) if @report
+      write_xml(filename, rev_doc)
     end
   end
+
+  private
   
-  def read_xml(datum)
-    path = Pathname.new("#{dir}/#{datum.filename}.xml")
-    Nokogiri::XML(path.read, &:noblanks)
+  def read_xml(filename)
+    Nokogiri::XML(Pathname.new("#{dir}/#{filename}.xml").read, &:noblanks)
   end
 
-  def write_xml(datum, doc)
-    path = Pathname.new("#{dir}/#{datum.filename}.xml")
-    doc.write_xml_to(path.open('w'))
+  def remove_attributes(element, attributes)
+    attributes.each do |attr|
+      element.remove_attribute(attr) if element.keys.any?(attr)
+    end
+    element
+  end
+
+  def report(filename)
+    puts "#{message}#{filename}.xml"
+  end
+  
+  def write_xml(filename, doc)
+    File.open("#{dir}/#{filename}.xml", 'w'){ |file| doc.write_xml_to(file) }
   end
 end
 
 class ElementDeleter < XmlEditor
-  def make_edits(element, doc)
-    doc.traverse do |docnode|
-      docnode.remove if docnode.to_s == element.to_s
+  def make_edits(elements, doc)
+    elements.map(&:path).reverse.each do |path|
+      doc.xpath(path).first.remove
+    end    
+    doc
+  end
+
+  def message
+    'Deleted element(s) from '
+  end
+end
+
+class AltRepGroupFixer < XmlEditor
+  class UnprocessableGroupError < StandardError; end
+  
+  def make_edits(groups, doc)
+    groups.each do |group|
+      raise UnprocessableGroupError, "#{group.filename} altRepGroup #{group.id}" unless group.processable?
+
+      attrs = %w[altRepGroup lang script transliteration]
+      vernacular = remove_attributes(group.vernacular_element.element, attrs).to_s
+      doc.xpath(group.latin_element.path).first.replace(vernacular)
+    end
+    delete_old_vernacular(groups, doc)
+    doc
+  end
+
+  private
+
+  def delete_old_vernacular(groups, doc)
+    paths = groups.map{ |grp| grp.vernacular_element.path }
+    rpaths = paths.reverse
+    nodes = rpaths.map{ |path| doc.xpath(path).first }
+
+    nodes.each do |node|
+      node.remove
     end
     doc
+  end
+
+  def message
+    "Fixed altRepGroup(s) in "
   end
 end
 
 class AttributeRemover < XmlEditor
   attr_reader :attributes
-  def initialize(dir:, data:, attributes:)
+  def initialize(dir:, data:, report: false, attributes:)
     super
     @attributes = attributes
   end
   
-  def make_edits(group, doc)
-    str_group = group.elements.map(&:to_s)
-    doc.traverse do |docnode|
-      next unless str_group.any?(docnode.to_s)
-
-      attributes.each{|attr_name| docnode.remove_attribute(attr_name) }
+  def make_edits(groups, doc)
+    to_elements(groups).each do |element|
+      cleaned = remove_attributes(element.element, attributes).to_s
+      doc.xpath(element.path).first.replace(cleaned)
     end
     doc
+  end
+
+  private
+
+  def get_elements(group)
+    return group if group.is_a?(AltRepElement)
+    group.elements
+  end
+  
+  def message
+    "Deleted attributes #{@attributes.join(', ')} from "
+  end
+
+  def to_elements(groups)
+    groups.map{ |grp| get_elements(grp) }.flatten
   end
 end
 
 class DeduplicateElements < XmlEditor
-  def make_edits(group, doc)
-    to_delete = doc.xpath("//*[@altRepGroup='#{group.id}']")
-    to_delete.shift
-    
-    doc.traverse do |docnode|
-      next unless docnode.element?
-
-      docnode.remove if to_delete.include?(docnode)  
+  def make_edits(groups, doc)
+    groups.each do |group|
+      to_delete = doc.xpath("//*[@altRepGroup='#{group.id}']")
+      to_delete.shift
+      next if to_delete.empty?
+      
+      to_delete.each{ |node| node.remove }
     end
     doc
   end
+
+  def message
+    'Deduplicated elements in '
+  end
 end
 
+class Diff
+  require 'diffy'
+  
+  def initialize(orig:, processed:)
+    @orig = orig
+    @processed = processed
+    @files = ModsFiles.new(inputdir: @orig).all.map(&:name).map{ |name| "#{name}.xml" }
+    @report_path = Pathname.new("#{processed}/_diff.txt")
+    @unchanged = []
+    @changed = []
+  end
+
+  def report
+    puts "#{@files.length} total files"
+    compile_results
+    puts "#{@unchanged.length} unchanged files"
+    puts "#{@changed.length} changed files"
+    write_summary
+    write_full
+  end
+
+  def compile_results
+    @files.each do |file|
+      result = diff_result(file)
+      status = result.status
+      @unchanged << file if status == :unchanged
+      next if status == :unchanged 
+
+      @changed << result
+    end
+  end
+  
+  def diff_result(file)
+    result = Diffy::Diff.new("#{@orig}/#{file}", "#{@processed}/#{file}", source: 'files',
+                             context: 0)
+    DiffResult.new(file, result.to_s)
+  end
+
+  def div
+    "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n"
+  end
+  
+  def header(file)
+    "#{div}#{file}\n#{div}"
+  end
+
+  def footer(file)
+    "\n\n"
+  end
+
+  def write_full
+    File.open(@report_path, 'a') do |reportfile |
+      @changed.each do |result|
+        file = result.file
+        reportfile.write(header(file))
+        reportfile.write(result.content)
+        reportfile.write(footer(file))
+      end
+    end
+  end
+
+  def write_summary
+    File.open(@report_path, 'w') do |reportfile |
+      reportfile.write("#{@changed.length} changed files -- #{@unchanged.length} unchanged files\n")
+      reportfile.write("\n#{div}List of unchanged files\n#{div}")
+      reportfile.write(@unchanged.join(', '))
+      reportfile.write("\n")
+    end
+  end
+end
+
+class DiffResult
+  attr_reader :file, :content, :status
+  def initialize(file, result)
+    @file = file
+    @content = result
+    @status = result.empty? ? :unchanged : :changed
+  end
+end
 
 # copy all processable files to the output folder so we can just read/write from there
-options[:input].children.each do |c|
-  next if File.exist?("#{options[:output].to_s}/#{c.basename}")
-  
-  FileUtils.cp(c, options[:output])
-end
+# options[:input].children.each do |c|
+#   #  next if File.exist?("#{options[:output].to_s}/#{c.basename}")
 
-# Delete empty altRepGroup elements
+#   FileUtils.cp(c, options[:output])
+# end
+
+# # Delete empty altRepGroup elements
 # reporter = Reporter.new(mods: options[:output])
-# ed = ElementDeleter.new(dir: options[:output], data: reporter.empty_elements)
+# empty = reporter.empty_elements.group_by(&:filename)
+# ed = ElementDeleter.new(dir: options[:output], data: empty)
 # ed.process
 
 # # Remove duplicate elements within altRepGroup
 # reporter = Reporter.new(mods: options[:output])
-# de = DeduplicateElements.new(dir: options[:output], data: reporter.duplicate_elements)
+# duplicates = reporter.duplicate_elements.group_by(&:filename)
+# de = DeduplicateElements.new(dir: options[:output], data: duplicates)
 # de.process
 
 # # Remove attributes from single-element altRep"Group"s
 # reporter = Reporter.new(mods: options[:output])
+# singles = reporter.single_element_groups.group_by(&:filename)
 # ar = AttributeRemover.new(dir: options[:output],
-#                           data: reporter.single_element_groups,
+#                           data: singles,
 #                           attributes: %w[altRepGroup lang script transliteration])
 # ar.process
 
-reporter = Reporter.new(mods: options[:output])
-pro = reporter.processable
+# reporter = Reporter.new(mods: options[:output])
+# processable = reporter.processable.group_by(&:filename)
+# fixer = AltRepGroupFixer.new(dir: options[:output], data: processable, report: true)
+# fixer.process
+
+d = Diff.new(orig: options[:input], processed: options[:output])
+d.report
+
 # # For reporting things that will be ignored
 # reporter = Reporter.new(mods: options[:output])
 # nme = reporter.non_matching_element_groups
@@ -467,10 +633,4 @@ pro = reporter.processable
 # us = reporter.unprocessable_script_groups
 # mx = reporter.matching_xpath_groups
 # nmx = reporter.non_matching_xpath_groups
-
-binding.pry
-
-
-
-
 
