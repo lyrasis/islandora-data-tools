@@ -25,7 +25,7 @@ OptionParser.new{ |opts|
       exit
     end
   }
-  opts.on('-s', '--strip STRING', 'string indicating node to strip from beginning of xpaths'){ |s|
+  opts.on('-s', '--strip STRING', 'comma-delimited string indicating node(s) to strip from beginning of xpaths'){ |s|
     options[:strip] = s.split(',')
   }
   opts.on('-h', '--help', 'Prints this help'){
