@@ -36,8 +36,8 @@ OptionParser.new{ |opts|
 
 PROFILEPATH = "#{options[:input]}/profile"
 VALUESPATH = "#{PROFILEPATH}/values"
-Dir::mkdir(PROFILEPATH) unless Dir::exist?(PROFILEPATH)
-Dir::mkdir(VALUESPATH) unless Dir::exist?(VALUESPATH)
+FileUtils.mkdir_p(PROFILEPATH) unless Dir::exist?(PROFILEPATH)
+FileUtils.mkdir_p(VALUESPATH) unless Dir::exist?(VALUESPATH)
 FileUtils.rm_rf(Dir.glob("#{VALUESPATH}/*"))
 logpath = "#{PROFILEPATH}/profile_log.txt"
 LOG = Logger.new(logpath)
