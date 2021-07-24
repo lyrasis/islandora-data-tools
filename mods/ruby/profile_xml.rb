@@ -41,8 +41,8 @@ FileUtils.mkdir_p(VALUESPATH) unless Dir::exist?(VALUESPATH)
 FileUtils.rm_rf(Dir.glob("#{VALUESPATH}/*"))
 logpath = "#{PROFILEPATH}/profile_log.txt"
 LOG = Logger.new(logpath)
-WRITE_CHECK_THRESHOLD = 2500
-BATCH_WRITE_THRESHOLD = 5000
+WRITE_CHECK_THRESHOLD = 25
+BATCH_WRITE_THRESHOLD = 50
 
 class ProfilingManager
   attr_reader :file_count, :err_count, :profile
@@ -140,7 +140,7 @@ class ProfilingManager
     
     File.readlines(path).each do |line|
       splitline = line.chomp!.split('|||')
-      occs, exs, val = splitline[0], splitline[1].split('^^^'), splitline[2]
+      occs, exs, val = splitline[0].to_i, splitline[1].split('^^^'), splitline[2]
       if values.key?(val)
         values[val][:occurrences] += occs
         values[val][:example_files] << exs
@@ -165,7 +165,10 @@ class ProfilingManager
   def clean_xpath(xpath)
     xp = xpath.dup
     @strip.each{ |topnode| xp.sub!(/^\/#{topnode}/, '') }
-    xp.sub!(/^\//, '')
+    xp = xp.sub(/^\//, '')
+    return '0' if xp.empty?
+
+    xp
   end
 
   def write_values_over_threshold
