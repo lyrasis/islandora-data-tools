@@ -48,7 +48,7 @@ class ProfilingManager
   attr_reader :file_count, :err_count, :profile
   def initialize(dir:, strip:)
     @dir = dir
-    @strip = strip || []
+    @strip = strip ? strip : []
     @files = get_files
     @file_count = @files.length
     @err_count = 0
@@ -72,7 +72,7 @@ class ProfilingManager
     progress.finish
     puts 'Post-processing and reporting...'
     @profile.each{ |xpath, valhash| write_values(xpath, valhash) }
-    clean_xpaths
+    [@profile, @write_counts].each{ |hash| clean_xpaths(hash) }
     @profile.transform_values!{ |hash|{ occs: hash[:occurrences], uniqs: 0 } }
     deduplicate_value_files
     generate_stats
@@ -84,8 +84,9 @@ class ProfilingManager
     uniqlabel = 'UNIQUES'
     puts "      \t#{occlabel}\t#{uniqlabel}\tXPATH"
     @profile.keys.sort.each do |xpath|
-      occs = @profile[xpath][:occs]
-      uniqs = @profile[xpath][:uniqs]
+      target = @profile[xpath]
+      occs = target[:occs]
+      uniqs = target[:uniqs]
       occ = occs.to_s.rjust(occlabel.length, ' ')
       uniq = uniqs.to_s.rjust(uniqlabel.length, ' ')
       puts "#{label(uniqs, occs)}\t#{occ}\t#{uniq}\t#{xpath}"
@@ -138,9 +139,11 @@ class ProfilingManager
       splitline = line.chomp!.split('|||')
       occs, exs, val = splitline[0].to_i, splitline[1].split('^^^'), splitline[2]
       if values.key?(val)
-        values[val][:occurrences] += occs
-        values[val][:example_files] << exs 
-        values[val][:example_files].flatten.first(3)
+        target = values[val]
+        target[:occurrences] += occs
+        target_ef = target[:example_files]
+        target_ef << exs 
+        target_ef.flatten.first(3)
       else
         values[val] = {occurrences: occs, example_files: exs}
       end
@@ -153,9 +156,8 @@ class ProfilingManager
     @profile[xpath][:uniqs] = values.keys.length
   end
   
-  def clean_xpaths
-    @profile.transform_keys!{ |k| clean_xpath(k) }
-    @write_counts.transform_keys!{ |k| clean_xpath(k) }
+  def clean_xpaths(hash)
+    hash.transform_keys!{ |key| clean_xpath(key) }
   end
 
   def clean_xpath(xpath)
@@ -239,9 +241,11 @@ class ProfilingManager
 
   def sufficient_examples?(value, xpath)
     return false unless @profile.key?(xpath)
-    return false unless @profile[xpath][:values].key?(value)
+
+    vals_for_xpath = @profile[xpath][:values]
+    return false unless vals_for_xpath.key?(value)
     
-    @profile[xpath][:values][value][:example_files].length == 3
+    vals_for_xpath[value][:example_files].length == 3
   end
   
   def xpath_values(valhash)
@@ -251,8 +255,9 @@ class ProfilingManager
   end
 
   def label(uniqs, occs)
-    return 'CONST' if uniqs == 1 && occs > 1
-    return 'ID   ' if occs > 1 && uniqs == occs 
+    return '     ' if occs == 1 && uniqs == 1
+    return 'CONST' if occs > 1 && uniqs == 1
+    return 'ID   ' if uniqs == occs 
     '     '
   end
   
@@ -323,8 +328,9 @@ class FileProfiler
   def init_profile
     h = xpaths.map{ |p| [p, { occurrences: 0, values: {} }] }.to_h
     h.keys.select{ |k| k['/@'] }.each do |path|
-      h[path][:type] = :attribute
-      h[path][:name] = path.sub(/^.*\/@/, '')
+      target = h[path]
+      target[:type] = :attribute
+      target[:name] = path.sub(/^.*\/@/, '')
     end
     h
   end
