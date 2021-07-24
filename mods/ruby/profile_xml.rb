@@ -223,16 +223,8 @@ class ProfilingManager
   def merge_xpath_value(value:, xpath:, file:)
     setup_xpath_value(value: value, xpath: xpath) unless value_present?(value, xpath)
     target = @profile[xpath][:values][value]
-    increment_value_occurrences(target)
-    add_value_example(target, file) unless sufficient_examples?(value, xpath)
-  end
-
-  def add_value_example(target, file)
-    target[:example_files] << file
-  end
-
-  def increment_value_occurrences(target)
     target[:occurrences] += 1
+    target[:example_files] << file unless sufficient_examples?(value, xpath)
   end
 
   def setup_xpath_value(value:, xpath:)
