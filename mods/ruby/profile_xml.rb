@@ -79,10 +79,6 @@ class ProfilingManager
     rename_tmp_files
   end
 
-  def report_elements_and_attributes_used
-    puts xpaths
-  end
-
   def report_summary
     occlabel = 'OCCURRENCES'
     uniqlabel = 'UNIQUES'
