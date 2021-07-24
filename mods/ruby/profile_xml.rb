@@ -251,13 +251,9 @@ class ProfilingManager
   end
 
   def label(uniqs, occs)
-    if uniqs == 1 && occs > 1
-      'CONST'
-    elsif occs > 1 && uniqs == occs 
-      'ID   '
-    else
-      '     '
-    end
+    return 'CONST' if uniqs == 1 && occs > 1
+    return 'ID   ' if occs > 1 && uniqs == occs 
+    '     '
   end
   
   def get_doc(path)
