@@ -115,7 +115,7 @@ class ProfilingManager
 
     File.open(finalfile, 'a') do |target|
       values.each do |val, info|
-        target.write("#{info[:occurrences]}|||#{info[:example_files].join('^^^')}|||#{val}\n")
+        target.write("#{info[:occurrences]}|||#{info[:example_files].flatten.first(3).join('^^^')}|||#{val}\n")
       end
     end
 
@@ -139,8 +139,8 @@ class ProfilingManager
       occs, exs, val = splitline[0].to_i, splitline[1].split('^^^'), splitline[2]
       if values.key?(val)
         values[val][:occurrences] += occs
-        values[val][:example_files] << exs
-        values[val][:example_files].flatten
+        values[val][:example_files] << exs 
+        values[val][:example_files].flatten.first(3)
       else
         values[val] = {occurrences: occs, example_files: exs}
       end
@@ -185,7 +185,7 @@ class ProfilingManager
   def write_values(xpath, valhash)
     File.open(xpath_filename(clean_xpath(xpath)), 'a') do |valfile|
       valhash[:values].each do |value, info|
-        valfile.write("#{info[:occurrences]}|||#{info[:example_files].join('^^^')}|||#{value}\n")
+        valfile.write("#{info[:occurrences]}|||#{info[:example_files].flatten.first(3).join('^^^')}|||#{value}\n")
       end
     end
     @write_counts[xpath] += 1
