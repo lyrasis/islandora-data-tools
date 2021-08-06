@@ -1,0 +1,17 @@
+= update_drupal_label_from_list.php
+
+== In-script variables to customize
+
+`$input`:: full path to text file listing PIDs of objects and the new label value for each. See below for format
+
+=== Format of input file
+
+* One row per object to to update
+* Separate object PID from new label value with `|`
+
+ ns:1|New label 1
+ ns:2|New label 2
+
+== Notes on script
+
+* Checks whether object exists before trying to update label. If object does not exist, warning is emitted to Drush STDOUT.
