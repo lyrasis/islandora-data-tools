@@ -27,7 +27,7 @@ OptionParser.new{ |opts|
       exit
     end
   }
-  opts.on('-o', '--output INPUTDIR', 'Path to directory in which to save edited MODS'){ |o|
+  opts.on('-o', '--output OUTPUTDIR', 'Path to directory in which to save edited MODS'){ |o|
     options[:output] = Pathname(File.expand_path(o))
     unless options[:output].exist? && options[:output].directory?
       FileUtils.mkdir_p(options[:output])
@@ -301,6 +301,13 @@ class ModsFile
     @alt_rep_groups ||= extract_alt_rep_groups
   end
 
+  def first_title
+    xml.remove_namespaces!
+      .xpath('/mods/titleInfo[not(@type)]/title')
+      .first
+      .text
+  end
+  
   def report(method:)
     alt_rep_groups.all.map{ |arg| arg.report(method: method) }.flatten
   end
@@ -532,6 +539,8 @@ class Diff
     write_full
   end
 
+  private
+
   def compile_results
     @files.each do |file|
       result = diff_result(file)
@@ -582,6 +591,44 @@ class Diff
   end
 end
 
+Result = Struct.new(:file, :content, :status)
+
+class TitleDiff < Diff
+  def report
+    set_report_path
+    super
+  end
+
+  private
+  
+  def diff_result(file)
+    files = [File.join(@orig, file), File.join(@processed, file)]
+    titles = files.map{ |file| first_title(file) }.uniq
+    return Result.new(file, '', :unchanged) if titles.length == 1
+
+    content = "#{file.delete_suffix('.xml')}\t#{titles[1]}\n"
+    Result.new(file, content, :changed)
+  end
+  
+  def first_title(file)
+    doc = ModsFile.new(path: Pathname.new(file))
+    doc.first_title
+  end
+
+  def set_report_path
+    @report_path = @report_path.dirname.join('title_changes.txt')
+  end
+
+  def write_full
+    File.open(@report_path, 'w') do |reportfile|
+      @changed.each do |result|
+        reportfile.write(result.content)
+      end
+    end
+  end
+end
+
+
 class DiffResult
   attr_reader :file, :content, :status
   def initialize(file, result)
@@ -623,9 +670,11 @@ end
 # fixer = AltRepGroupFixer.new(dir: options[:output], data: processable, report: true)
 # fixer.process
 
-d = Diff.new(orig: options[:input], processed: options[:output])
-d.report
+# d = Diff.new(orig: options[:input], processed: options[:output])
+# d.report
 
+td = TitleDiff.new(orig: options[:input], processed: options[:output])
+td.report
 # # For reporting things that will be ignored
 # reporter = Reporter.new(mods: options[:output])
 # nme = reporter.non_matching_element_groups
