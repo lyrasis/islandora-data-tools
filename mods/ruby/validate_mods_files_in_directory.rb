@@ -49,7 +49,7 @@ log = Logger.new(logpath)
 
 schemapath = options[:schema]
 schemapath = SCHEMAPATH if schemapath.nil?
-schema = Nokogiri::XML::Schema(File.read(schemapath))
+schema = Nokogiri::XML::Schema(File.open(schemapath))
 
 modsfiles = Dir.new(modspath).children
   .select{ |f| f.end_with?('.xml')}
