@@ -2,7 +2,7 @@
 
 This process is handled via a list of object PIDs.
 
-* https://github.com/lyrasis/islandora-data-tools/blob/main/workflows/get_list_of_object_pids.adoc[Get list of object PIDs]
+* https://github.com/lyrasis/islandora-data-tools/blob/main/workflows/get_list_of_object_pids.adoc[Get list of PIDs for objects with TECHMD datastreams]
 * Download TECHMD datastreams for all objects
 ** Use https://github.com/lyrasis/islandora-data-tools/tree/main/drush/get_list_datastreams[islandora-data-tools/drussh/get_list_datastreams] with `$dsid` variable set to `TECHMD`
 * Run https://github.com/lyrasis/islandora-data-tools/tree/main/general/list_invalid_or_malformed_objs[islandora-data-tools/general/list_invalid_or_malformed_objs] with the directory of TECHMD datastreams as input directory

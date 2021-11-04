@@ -1,0 +1,227 @@
+:toc:
+:toc-placement!:
+:toclevels: 4
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Migration QA
+
+toc::[]
+
+== Ingest verification
+
+*Before clearing/deleting any batch sets*, look to see whether there were any errors.
+
+You need to specify the batch set id (`sid`) (at the end of the queries now as 22). I believe this is returned to you when you kick off the `islandora-batch-ingest` command. You can also get it from the UI list of Islandora Batch Sets.
+
+You also need to use the alias of the site you are migrating into.
+
+.Count of successfully ingested objects
+[source,bash]
+----
+drush -u 1 @sitealias sqlq "select count(*) from islandora_batch_queue ibq inner join islandora_batch_queue_messages ibqm on ibqm.id = ibq.id and ibqm.message like 'Ingested %' where ibq.sid = 22;"
+----
+
+
+.Count of objects where ingest failed
+[source,bash]
+----
+drush -u 1 @nbla sqlq "select count(*) from islandora_batch_queue ibq inner join islandora_batch_queue_messages ibqm on ibqm.id = ibq.id and ibqm.message like 'Exception %' where ibq.sid = 22;"
+----
+
+You need to specify the batch set id (`sid`) (at the end of the queries). I believe this is returned to you when you kick off the `islandora-batch-ingest` command. You can also get it from the UI list of Islandora Batch Sets.
+
+This query, if it returns anything, will return what you need
+
+=== If there were any ingest failures...
+
+This will return the big ugly data blob from which the `/opt/migrations` file location of each failed object can be extracted.
+
+[source,bash]
+----
+drush -u 1 @nbla sqlq "select ibq.data from islandora_batch_queue ibq inner join islandora_batch_queue_messages ibqm on ibqm.id = ibq.id and ibqm.message like 'Exception %' where ibq.sid = 22;"
+----
+
+== Collection assignment verification
+
+This is only relevant if you have assigned objects to collections via a batch process.
+
+Within reason, you can do this by doing a blank search in your instance and seeing how many items are listed under each collection in the Collection facet. However, this may be complicated by page objects or compound object parts if such content models were in the objects assigned to collections (not sure how those get counted in the facet).
+
+Drew (or other Islandora admin) can run https://github.com/lyrasis/islandora-playbook/blob/master/helpers/get_collection_count_from_pids.yml[this script].
+
+It needs a csv or plain text list of the collection PIDs you want to check the counts on.
+
+Currently it only counts Basic Image content model objects in the collections, but the Solr query https://github.com/lyrasis/islandora-playbook/blob/40efe4955538b512715e7fea70cca516c5b56ae6/helpers/get_collection_count_from_pids.yml#L33[here] can be tweaked to control exactly what content models are counted (and limit by anything else available in Solr)
+
+== Run various Solr queries to find issues
+
+* Tunnel into Fedora server of instance you are working on. If you use local port 9876 to tunnel, the queries should work as-is.
+
+
+=== Objects with no OBJ datastream
+
+Omits compound, collection, newspaper, newspaper issue, and book objects, as they do not get an OBJ datastream, since they are arrangements of other objects
+
+Omits citation and thesis objects as they are expected to have a PDF datastream instead of an OBJ
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3AOBJ%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AcompoundCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AcollectionCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AbookCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AnewspaperCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AnewspaperIssueCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/ir%5C%3AcitationCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/ir%5C%3AthesisCModel&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+=== Citation objects with no PDF datastream
+
+Depending on expectations, these may or may not have issues.
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3APDF%20AND%20RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/ir%5C%3AcitationCModel&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+=== Thesis objects with no PDF datastream
+
+Depending on expectations, these may or may not have issues.
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3APDF%20AND%20RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/ir%5C%3AthesisCModel&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+=== Book objects with no PDF datastream
+
+There is an option to generate a downloadable PDF datastream for each book. In general, most of our clients use this option. This will find books that do not have the PDF, which may or may not be an issue.
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3APDF%20AND%20RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AbookCModel&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+=== Objects with no thumbnail datastream
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3ATN&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+=== Objects lacking technical metadata datastream
+
+Omits compound, collection, and newspaper, newspaper issue, book objects, as they do not get TECHMD datastreams.
+
+http://localhost:9876/solr/collection1/select?q=-fedora_datastreams_ms%3ATECHMD%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AcompoundCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AcollectionCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AnewspaperCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AnewspaperIssueCModel%20AND%20-RELS_EXT_hasModel_uri_ms%3Ainfo%5C%3Afedora/islandora%5C%3AbookCModel&fl=PID,fedora_datastreams_ms,RELS_EXT_hasModel_uri_ms,RELS_EXT_isMemberOfCollection_uri_ms
+
+== Find missing or corrupted thumbnails
+
+The derivatives generation process can be a little wonky and good luck getting a report of any failures, as they are spun off to microservices for deferred processing.
+
+Workflow for this https://github.com/lyrasis/islandora-data-tools/blob/main/workflows/find_missing_or_corrupted_thumbnails.adoc[here]
+
+== Check for any invalid or malformed objects
+
+Workflow https://github.com/lyrasis/islandora-data-tools/blob/main/workflows/find_invalid_and_malformed_objects.adoc[here].
+
+=== Background info/limitations to know about
+
+Islandora uses https://projects.iq.harvard.edu/fits/home[FITS] to verify object files and generate technical metadata. FITS uses a number of different tools to work with different types of files. Not all file types support any automated well-formedness/validity checking, so **it is expected that not all TECHMD datastreams will have these elements**.
+
+FITS has a somewhat complicated configuration that tells it what tools to run on what file types.
+
+If http://jhove.openpreservation.org/[JHOVE] is run, it provides something like the following in the FITS if it can check validity/well-formedness of the format:
+
+[source,xml]
+----
+<filestatus>
+  <well-formed toolname="Jhove" toolversion="1.16" status="SINGLE_RESULT">true</well-formed>
+  <valid toolname="Jhove" toolversion="1.16" status="SINGLE_RESULT">true</valid>
+</filestatus>
+----
+
+Incomplete table of what gets these checks and what doesn't:
+
+[source]
+----
+ | content model | wellformed chk?                  | validity chk?                    |
+ |---------------+----------------------------------+----------------------------------|
+ | large image   | y                                | y                                |
+ | basic image   | y                                | y                                |
+ | audio         | n                                | n                                |
+ | video         | n                                | n                                |
+ | page (book)   | y                                | y                                |
+ | pdf           | y                                | y                                |
+ | binary        | n                                | n                                |
+ | book          | no TECHMD - page have TECHMD     | no TECHMD - page has TECHMD      |
+ | compound      | no TECHMD - children have TECHMD | no TECHMD - children have TECHMD |
+----
+
+[NOTE]
+====
+There is a bug in the FITS configuration. I figured out how to fix it but the Islandora admins were very nervous about messing with it, so it has still not been fixed because I've never really pushed for it strongly.
+
+
+Everything is good for image files that FITS identifies as:
+
+ <identity format="JPEG File Interchange Format" mimetype="image/jpeg" toolname="FITS" toolversion="1.5.0">
+
+They get sent to JHOVE, which provides the necessary checks.
+
+For some reason, however, some JPEGs get identified as:
+
+ <identity format="JPEG EXIF" mimetype="image/jpeg" toolname="FITS" toolversion="1.5.0">
+
+These get run through Exiftool, and not JHOVE. Exiftool does not provide all the full info that JHOVE does, and it omits the well-formedness/validity checks.
+
+The same problem exists for TIFF files that for some reason get tagged as "TIFF EXIF" format instead of "TIFF" or "Tagged Image File Format."
+
+The solution is to update the `/opt/Fits/xml/fits_xml_map.xml` file.
+
+It currently has:
+
+[source,xml]
+----
+        <tool name="jhove">
+                <mime type="all">
+                        <element name="identity">
+                                <attribute name="format">
+                                        <map from="JPEG JFIF" to="JPEG File Interchange Format"/>
+                                        <map from="GIF GIF 87a" to="Graphics Interchange Format"/>
+                                        <map from="TIFF" to="Tagged Image File Format"/>
+                                        <map from="TIFF Baseline RGB (Class R)" to="Tagged Image File Format"/>
+                                        <map from="TIFF TIFF/IT-BP/P2 (ISO 12639:1998)" to="Tagged Image File Format"/>
+                                        <map from="XML" to="Extensible Markup Language"/>
+                                        <map from="HTML" to="Hypertext Markup Language"/>
+                                        <map from="WAVE PCMWAVEFORMAT" to="Waveform Audio"/>
+                                        <map from="WAVE WAVEFORMATEX" to="Waveform Audio"/>
+                                        <map from="JPEG 2000 JP2" to="JPEG 2000"/>
+                                </attribute>
+                                <attribute name="mimetype">
+                                        <map from="text/plain; charset=US-ASCII" to="text/plain"/>
+                                        <map from="text/plain; charset=UTF-8" to="text/plain"/>
+                                </attribute>
+                        </element>
+                </mime>
+----
+
+We just need to add a couple of lines to this to fix it:
+
+[source,xml]
+----
+        <tool name="jhove">
+                <mime type="all">
+                        <element name="identity">
+                                <attribute name="format">
+                                        <map from="JPEG EXIF" to="JPEG File Interchange Format"/>
+                                        <map from="JPEG JFIF" to="JPEG File Interchange Format"/>
+					<map from="GIF GIF 87a" to="Graphics Interchange Format"/>
+                                        <map from="TIFF" to="Tagged Image File Format"/>
+                                        <map from="TIFF Baseline RGB (Class R)" to="Tagged Image File Format"/>
+					<map from="TIFF EXIF" to="Tagged Image File Format"/>
+                                        <map from="TIFF TIFF/IT-BP/P2 (ISO 12639:1998)" to="Tagged Image File Format"/>
+                                        <map from="XML" to="Extensible Markup Language"/>
+                                        <map from="HTML" to="Hypertext Markup Language"/>
+                                        <map from="WAVE PCMWAVEFORMAT" to="Waveform Audio"/>
+                                        <map from="WAVE WAVEFORMATEX" to="Waveform Audio"/>
+                                        <map from="JPEG 2000 JP2" to="JPEG 2000"/>
+                                </attribute>
+                                <attribute name="mimetype">
+                                        <map from="text/plain; charset=US-ASCII" to="text/plain"/>
+                                        <map from="text/plain; charset=UTF-8" to="text/plain"/>
+                                </attribute>
+                        </element>
+                </mime>
+----
+
+This results in the files being sent through both Exiftool *and* JHOVE, and we no longer have to manually futz around with manually running JHOVE on some subset of files.
+
+I may pick this up again and push for it to actually get fixed.
+====
