@@ -1,0 +1,147 @@
+:toc:
+:toc-placement!:
+:toclevels: 4
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Batch ingest collections
+
+toc::[]
+
+The following assumes we are working with a fake LYRASIS Islandora Client.
+
+Site alias: lic
+
+Site namespace: lic
+
+== Ensure islandora_batch_with_derivs is enabled for site
+
+* Log in to site as admin
+* Click `Modules` in top admin menu bar. Wait longer than you think you should have to. Eventually a list of all installed modules will appear.
+* Type `derivs` in the `Filter list` box to hopefully limit to Islandora Batch With Derivatives module
+** If your filtered list is empty, contact Drew (or other Islandora admin) to install the module for the site.
+** If it's there and toggled ON, good
+** If it's there and toggled OFF, click the toggle to enable **and scroll to the very bottom of the page and click the `Save configuration` button**
+
+== Generate ingest package for collections
+
+=== Required structure
+
+[source]
+----
+- collections_ingest_package
+-- coll_1
+--- COLLECTION_POLICY.xml
+--- MODS.xml
+--- TN.jpg
+-- coll_2
+--- COLLECTION_POLICY.xml
+--- MODS.xml
+--- TN.jpg
+----
+
+[TIP]
+====
+On migration server, do:
+
+ drush -u 1 @lic help islandora_batch_with_derivs_preprocess
+
+And check out the `--use_pids` option.
+
+This is not something I've used, but it might be useful for batch ingesting collections with semantically meaningful collection PIDs (i.e. `lic:some_coll` instead of `lic:24536`)
+
+It looks like using this, `coll_1` and `coll_2` could be changed to `lic+first` and `lic+second`
+
+I don't know off hand what the limitations are for characters in Islandora PIDs. You will also want to be certain you are not using an existing PID
+====
+
+You could include https://wiki.lyrasis.org/display/ISLANDORA/APPENDIX+C+-+DATASTREAM+REFERENCE[other datastreams] as necessary, but these are the minimum for expected collection functionality.
+
+==== COLLECTION_POLICY.xml
+
+Specifies what content models are allowed as children of the collection. The following example will allow subcollections and basic images to be added.
+
+See a list of available content models: in your site, in admin tool bar, go to Islandora > Solution pack configuration > Solution packs required objects. (This is not exactly a simple list of content models but will give you the `name` and `pid` values to fill in below.)
+
+[source,xml]
+----
+<collection_policy xmlns="http://www.islandora.ca" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="" xsi:schemaLocation="http://www.islandora.ca http://syn.lib.umanitoba.ca/collection_policy.xsd">
+  <content_models>
+    <content_model dsid="" name="Islandora Collection Content Model" namespace="lic" pid="islandora:collectionCModel"></content_model>
+    <content_model dsid="" name="Islandora Basic Image Content Model" namespace="lic" pid="islandora:sp_basic_image"></content_model>
+  </content_models>
+  <search_terms></search_terms>
+  <staging_area></staging_area>
+  <relationship>isMemberOfCollection</relationship>
+</collection_policy>
+----
+
+==== MODS.xml
+
+This should be a valid MODS description of the collection.
+
+Display of collection data is very constrained in I7, so limit yourself to including one primary `titleInfo` and one `abstract` element.
+
+Example:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drs="info://lyrasis/drs-admin/v1" xmlns:dc="http:://purl.org/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dwc="http://rs.tdwg.org/dwc/terms/" xmlns:edm="http://pro.europeana.eu/edm-documentation" xmlns:mods="http://www.loc.gov/mods/v3">
+  <titleInfo usage="primary">
+  <title>First collection</title>
+  </titleInfo>
+  <abstract>This is a description of the first collection</abstract>
+</mods>
+----
+
+[NOTE]
+====
+A https://github.com/lyrasis/dts-data-migration-docs/blob/main/islandora/islandora_7.adoc#description[constrained set of HTML tags] may be used to format the collection description (i.e. MODS `abstract` element), at least via the UI editing form. I have not experimented with whether those import well in batch
+====
+
+==== TN.jpg
+
+The thumbnail image to be used for the collection.
+
+In the one project I've batch-created collections for, I told the client I was just going to randomly assign the thumbnail of some object in the collection as the thumbnail of the collection.
+
+You could, if necessary, have the client provide the image they want to be the thumbnail for each collection.
+
+Thumbnail maximum dimension is 200x200px.
+
+
+=== Generating required structure
+
+There's no real reusable tooling for this yet, as the only client I've done this for...
+
+- needed me to extract the collection names from their object MODS
+- wanted a boilerplate description added to all collections
+
+Most of the code for how I achieved this is https://github.com/lyrasis/migrations-private/blob/main/archived_projects/aip_image/lib/aip_image/target_collection.rb[here], but it's embedded in a larger Ruby project. 
+
+== Ingest the package
+
+From migration server: 
+
+=== Run the preprocessing
+
+This pushes the info into an ingest queue in the Drupal database
+
+[source,bash]
+----
+drush -u 1 @lic islandora_batch_with_derivs_preprocess --key_datastream=MODS --scan_target=/path/to/collections_ingest_package --namespace=lic --parent=lic:main_collection --content_models=islandora:collectionCModel
+----
+
+This initiates ingest of the things in the Drupal ingest queue
+
+[source,bash]
+----
+drush -u 1 @site_alias islandora_batch_ingest > ~/client-coll.log 2> ~/client-coll.err
+----
