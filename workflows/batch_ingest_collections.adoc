@@ -139,7 +139,11 @@ This pushes the info into an ingest queue in the Drupal database
 drush -u 1 @lic islandora_batch_with_derivs_preprocess --key_datastream=MODS --scan_target=/path/to/collections_ingest_package --namespace=lic --parent=lic:main_collection --content_models=islandora:collectionCModel
 ----
 
+=== Start actual ingest
+
 This initiates ingest of the things in the Drupal ingest queue
+
+If I recall correctly, everything only gets written to the .log or the .err file, so one of those can probably be left off. Or omitted altogether if you are using the UI to review ingest status (Left nav bar > Islandora Batch Sets > View items in set > (set Item state))
 
 [source,bash]
 ----
