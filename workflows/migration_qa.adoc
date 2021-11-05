@@ -224,5 +224,10 @@ We just need to add a couple of lines to this to fix it:
 
 This results in the files being sent through both Exiftool *and* JHOVE, and we no longer have to manually futz around with manually running JHOVE on some subset of files.
 
-I may pick this up again and push for it to actually get fixed.
+The added lines are: 
+
+ <map from="JPEG EXIF" to="JPEG File Interchange Format"/>
+ <map from="TIFF EXIF" to="Tagged Image File Format"/>
+
+I may pick this up again and push for it to actually get fixed, as working around it to verify things can take a lot of time for some migrations.
 ====
