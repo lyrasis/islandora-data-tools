@@ -146,8 +146,9 @@ Incomplete table of what gets these checks and what doesn't:
 
 [NOTE]
 ====
-There is a bug in the FITS configuration. I figured out how to fix it but the Islandora admins were very nervous about messing with it, so it has still not been fixed because I've never really pushed for it strongly.
+There is a problem in the FITS configuration that causes extra work for us in verifying all files are valid and well-formed. 
 
+I figured out how to fix it back in 2019, but the Islandora admins were very nervous about messing with it, so it has still not been fixed because I've never really pushed for it strongly.
 
 Everything is good for image files that FITS identifies as:
 
