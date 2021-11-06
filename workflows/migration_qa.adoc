@@ -146,8 +146,9 @@ Incomplete table of what gets these checks and what doesn't:
 
 [NOTE]
 ====
-There is a bug in the FITS configuration. I figured out how to fix it but the Islandora admins were very nervous about messing with it, so it has still not been fixed because I've never really pushed for it strongly.
+There is a problem in the FITS configuration that causes extra work for us in verifying all files are valid and well-formed. 
 
+I figured out how to fix it back in 2019, but the Islandora admins were very nervous about messing with it, so it has still not been fixed because I've never really pushed for it strongly.
 
 Everything is good for image files that FITS identifies as:
 
@@ -223,5 +224,10 @@ We just need to add a couple of lines to this to fix it:
 
 This results in the files being sent through both Exiftool *and* JHOVE, and we no longer have to manually futz around with manually running JHOVE on some subset of files.
 
-I may pick this up again and push for it to actually get fixed.
+The added lines are: 
+
+ <map from="JPEG EXIF" to="JPEG File Interchange Format"/>
+ <map from="TIFF EXIF" to="Tagged Image File Format"/>
+
+I may pick this up again and push for it to actually get fixed, as working around it to verify things can take a lot of time for some migrations.
 ====
