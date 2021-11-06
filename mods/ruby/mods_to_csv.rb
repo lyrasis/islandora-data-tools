@@ -65,6 +65,9 @@ config = {
   #    'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
   #               '@lang', '@xml:lang', '@script', '@transliteration']
   # },
+    'mods:note'=> {
+     'self' => ['@type', '@displayLabel', '@xlink:href']
+  },
   # 'mods:originInfo' => {
   #   'self' => ['@eventType'],
   #   'mods:copyrightDate' => ['@encoding', 'value'],
@@ -89,12 +92,12 @@ config = {
     # 'mods:originInfo/mods:dateIssued' => {
     #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
     # },
-    'mods:part'=>{
-     'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
-     'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
-     'mods:date'=>['value'],
-#     'mods:text'=>['@type', '@displayLabel', 'value']
-  },
+    # 'mods:part'=>{
+    #  'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
+    #  'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
+    #  'mods:date'=>['value'],
+    #     'mods:text'=>['@type', '@displayLabel', 'value']
+  # },
   # 'mods:physicalDescription/mods:form'=>{
   #   'self'=>['@authority', '@type', 'value']
   # },
