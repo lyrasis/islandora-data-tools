@@ -9,5 +9,6 @@ collection, building out a directory structure to match.
 `$coll`:: id of collection (after the : in Islandora/Fedora PIDs)
 `$savedir`:: full path to directory where datastreams will be saved
 `$ds_name`:: dsid of datastream to download
+`$logpath`:: full path to a logfile used to report the results of the script
 
 WARNING: Currently only MODS datastream is supported. Adding another datastream will require updating the `get_suffix` function, but this is trivial!
