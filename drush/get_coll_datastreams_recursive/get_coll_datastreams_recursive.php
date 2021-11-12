@@ -19,19 +19,19 @@ $ds_name = 'MODS';
 
 $suffix = get_suffix($ds_name);
 
-if(!is_dir($savedir)){
-    mkdir($savedir);
+if(!is_dir($savedir)) {
+    mkdir($savedir, 0777, true);
 }
 
 drupal_static_reset('islandora_get_tuque_connection');
 $tuque = islandora_get_tuque_connection();
 $repository = $tuque->repository;
 
-$collpid = $namespace . ':' . $coll;
+$initpid = $namespace . ':' . $coll;
 
-$pwd = $savedir;
+process_collection($initpid, $savedir, $repository);
 
-function process_collection($collpid, $pwd)
+function process_collection($collpid, $pwd, $repository)
 {
   $items = [];
 
@@ -44,7 +44,7 @@ function process_collection($collpid, $pwd)
        <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collpid>
   }
   ORDER BY ?pid
-  QUERY;
+QUERY;
 
   $results = $repository->ri->sparqlQuery($objs);
 
@@ -54,14 +54,14 @@ function process_collection($collpid, $pwd)
   }
 
   foreach ($items as $item) {
-      if (is_collection($item)) {
-        $pwd = "$pwd/$item"
-        if(!is_dir($pwd)){
-            mkdir($pwd);
-        }
-        process_collection($item, $pwd)
-      }
       get_and_write_datastream($item, $ds_name, $suffix, $pwd);
+      if (is_collection($item)) {
+        $newdir = "$pwd/$item";
+        if(!is_dir($newdir)) {
+            mkdir($newdir);
+        }
+        process_collection($item, $newdir, $repository);
+      }
   } // end foreach $items
 }
 
@@ -71,7 +71,8 @@ function get_and_write_datastream($pid, $ds_name, $suffix, $path)
     $datastream = $obj[$ds_name];
     $path = "$path/$pid$suffix";
     print $path . "\n";
-    $datastream->getContent($path);
+    // TODO: fix
+    // $datastream->getContent($path);
 }
 
 function get_suffix($ds_name)
