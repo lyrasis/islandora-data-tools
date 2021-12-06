@@ -1,0 +1,11 @@
+= update_obj_state_by_coll.php
+
+Will recursively update the state of objects, starting in the specified
+collection.
+
+== in-script variables to customize
+
+`$namespace`:: namespace (before the : in Islandora/Fedora PIDs)
+`$coll`:: id of collection (after the : in Islandora/Fedora PIDs)
+`$state`:: intended state of the objects (A(ctive)/I(nactive)/D(eleted))
+`$logpath` :: path to log file (which replaces drush log)
