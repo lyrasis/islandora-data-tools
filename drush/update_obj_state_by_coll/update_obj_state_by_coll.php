@@ -26,7 +26,11 @@ $repository = $tuque->repository;
 
 $initpid = $namespace . ':' . $coll;
 
-process_collection($initpid, $repository, $logpath);
+// state by updating the initial collection
+update_object_state($initpid, $state, $logpath);
+
+// ...now update its children
+process_collection($initpid, $state, $repository, $logpath);
 
 $log = fopen($logpath, 'a');
 
