@@ -65,9 +65,9 @@ config = {
   #    'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
   #               '@lang', '@xml:lang', '@script', '@transliteration']
   # },
-    'mods:note'=> {
-     'self' => ['@type', '@displayLabel', '@xlink:href']
-  },
+  #   'mods:note'=> {
+  #    'self' => ['@type', '@displayLabel', '@xlink:href']
+  # },
   # 'mods:originInfo' => {
   #   'self' => ['@eventType'],
   #   'mods:copyrightDate' => ['@encoding', 'value'],
@@ -111,6 +111,17 @@ config = {
     # 'mods:relatedItem/mods:titleInfo' => {
     #   'self' => ['@displaylabel', '@lang', '@script', '@transliteration', '@type', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
   # },
+  'mods:relatedItem' => {
+    'self' => ['@type', '@displayLabel'],
+    'mods:identifier' => ['@type', 'value'],
+    'mods:internetMediaType' => ['value'],
+    'mods:location/mods:url' => ['@displayLabel', 'value'],
+    'mods:name' => ['@type'],
+    'mods:name/mods:namePart' => ['@type', 'value'],
+    'mods:originInfo/mods:publisher' => ['value'],
+    'mods:titleInfo/mods:title' => ['value'],
+    'mods:titleInfo/mods:partName' => ['value'],
+  }
   # 'mods:subject' => {
   #   'self' => ['@authority'],
   #   'mods:genre' => ['value'],
