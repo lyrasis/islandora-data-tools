@@ -645,36 +645,37 @@ end
 #   FileUtils.cp(c, options[:output])
 # end
 
-# # Delete empty altRepGroup elements
-# reporter = Reporter.new(mods: options[:output])
-# empty = reporter.empty_elements.group_by(&:filename)
-# ed = ElementDeleter.new(dir: options[:output], data: empty)
-# ed.process
+# Delete empty altRepGroup elements
+reporter = Reporter.new(mods: options[:output])
+empty = reporter.empty_elements.group_by(&:filename)
+ed = ElementDeleter.new(dir: options[:output], data: empty)
+ed.process
 
-# # Remove duplicate elements within altRepGroup
-# reporter = Reporter.new(mods: options[:output])
-# duplicates = reporter.duplicate_elements.group_by(&:filename)
-# de = DeduplicateElements.new(dir: options[:output], data: duplicates)
-# de.process
+# Remove duplicate elements within altRepGroup
+reporter = Reporter.new(mods: options[:output])
+duplicates = reporter.duplicate_elements.group_by(&:filename)
+de = DeduplicateElements.new(dir: options[:output], data: duplicates)
+de.process
 
-# # Remove attributes from single-element altRep"Group"s
-# reporter = Reporter.new(mods: options[:output])
-# singles = reporter.single_element_groups.group_by(&:filename)
-# ar = AttributeRemover.new(dir: options[:output],
-#                           data: singles,
-#                           attributes: %w[altRepGroup lang script transliteration])
-# ar.process
+# Remove attributes from single-element altRep"Group"s
+reporter = Reporter.new(mods: options[:output])
+singles = reporter.single_element_groups.group_by(&:filename)
+ar = AttributeRemover.new(dir: options[:output],
+                          data: singles,
+                          attributes: %w[altRepGroup lang script transliteration])
+ar.process
 
-# reporter = Reporter.new(mods: options[:output])
-# processable = reporter.processable.group_by(&:filename)
-# fixer = AltRepGroupFixer.new(dir: options[:output], data: processable, report: true)
-# fixer.process
+reporter = Reporter.new(mods: options[:output])
+processable = reporter.processable.group_by(&:filename)
+fixer = AltRepGroupFixer.new(dir: options[:output], data: processable, report: true)
+fixer.process
 
-# d = Diff.new(orig: options[:input], processed: options[:output])
-# d.report
+d = Diff.new(orig: options[:input], processed: options[:output])
+d.report
 
 td = TitleDiff.new(orig: options[:input], processed: options[:output])
 td.report
+
 # # For reporting things that will be ignored
 # reporter = Reporter.new(mods: options[:output])
 # nme = reporter.non_matching_element_groups
