@@ -66,9 +66,9 @@ config = {
   #              '@lang', '@xml:lang', '@script', '@transliteration']
   # },
 
-  'mods:extension/drs:admin/drs:captureDate' => {
-    'self' => ['value']
-  },
+  # 'mods:extension/drs:admin/drs:captureDate' => {
+  #   'self' => ['value']
+  # },
   
   # 'mods:extension/etd:degree' => {
   #   'etd:name' => ['value'],
@@ -85,21 +85,21 @@ config = {
   #   'self' => ['@type', '@displayLabel', '@xlink:href']
   # },
 
-  'mods:note[@type="date/sequential_designation"]'=> {
-    'self' => ['value']
-  },
+  # 'mods:note[@type="date/sequential_designation"]'=> {
+  #   'self' => ['value']
+  # },
 
-  'mods:note[@type="date/sequential designation"]'=> {
-    'self' => ['value']
-  },
+  # 'mods:note[@type="date/sequential designation"]'=> {
+  #   'self' => ['value']
+  # },
 
-  # 'mods:originInfo' => {
+  'mods:originInfo' => {
   #   'self' => ['@eventType'],
   #   'mods:copyrightDate' => ['@encoding', 'value'],
   #   'mods:dateCaptured' => ['@encoding', '@keyDate', 'value'],
-  #   'mods:dateCreated' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
-  #   'mods:dateIssued' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
-  #   'mods:dateOther' => ['@encoding', '@keyDate', '@qualifier', 'value'],
+     'mods:dateCreated' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
+     'mods:dateIssued' => ['@encoding', '@keyDate', '@point', '@qualifier', 'value'],
+     'mods:dateOther' => ['@type', '@encoding', '@keyDate', '@qualifier', 'value'],
   #   'mods:dateModified' => ['value'],
   #   'mods:dateValid' => ['value'],
   #   'mods:edition' => ['value'],
@@ -107,23 +107,23 @@ config = {
   #   'mods:issuance' => ['value'],
   #   'mods:place/mods:placeTerm' => ['@authority', '@type', 'value'],
   #   'mods:publisher' => ['value']
-  # },
+  },
 
   # 'mods:originInfo/mods:place/mods:placeTerm' => {
   #   'self' => ['@authority', '@type', 'value']
   # },
 
-  'mods:originInfo/mods:dateCreated' => {
-    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-  },
+  # 'mods:originInfo/mods:dateCreated' => {
+  #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  # },
 
-  'mods:originInfo/mods:dateIssued' => {
-    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-  },
+  # 'mods:originInfo/mods:dateIssued' => {
+  #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  # },
 
-  'mods:originInfo/mods:dateOther' => {
-    'self' => ['value', '@type', '@keyDate', '@qualifier', '@encoding', '@point']
-  },
+  # 'mods:originInfo/mods:dateOther' => {
+  #   'self' => ['value', '@type', '@keyDate', '@qualifier', '@encoding', '@point']
+  # },
 
   # 'mods:part'=>{
   #   'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
@@ -136,13 +136,13 @@ config = {
   #   'self'=>['@authority', '@type', 'value']
   # },
 
-  'mods:recordInfo/mods:recordChangeDate' => {
-    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-  },
+  # 'mods:recordInfo/mods:recordChangeDate' => {
+  #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  # },
 
-  'mods:recordInfo/mods:recordCreationDate' => {
-    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-  },
+  # 'mods:recordInfo/mods:recordCreationDate' => {
+  #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  # },
 
   # 'mods:relatedItem' => {
   #   'mods:titleInfo/mods:title' => ['value']
