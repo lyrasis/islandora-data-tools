@@ -21,18 +21,18 @@ Each top level key of the hash is an element on which you want a new row to be c
 If example MODS includes:
 
 <mods:physicalDescription>
-  <mods:note>PD 1, Note 1</mods:note>
-  <mods:note>PD 1, Note 2</mods:note>
+<mods:note>PD 1, Note 1</mods:note>
+<mods:note>PD 1, Note 2</mods:note>
 </mods:physicalDescription>
 <mods:physicalDescription>
-  <mods:note>PD 2, Note 1</mods:note>
-  <mods:note>PD 2, Note 2</mods:note>
+<mods:note>PD 2, Note 1</mods:note>
+<mods:note>PD 2, Note 2</mods:note>
 </mods:physicalDescription>
 
 And config hash includes:
 
 'mods:physicalDescription' => {
-  'mods:note' => ['value']
+'mods:note' => ['value']
 }
 
 You will get the following rows:
@@ -43,7 +43,7 @@ PD 2, Note 1; PD 2, Note 2
 If the config hash includes:
 
 'mods:physicalDescription/mods:note' => {
-  'self' => ['value']
+'self' => ['value']
 }
 
 You will get the following rows:
@@ -61,13 +61,38 @@ prefix) returns the value of that attribute on that node.
 =end
 
 config = {
-  #   'mods:accessCondition'=> {
-  #    'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
-  #               '@lang', '@xml:lang', '@script', '@transliteration']
+  # 'mods:accessCondition'=> {
+  #   'self' => ['value', '@type', '@displayLabel', '@altRepGroup', '@altFormat', '@contentType', '@xlink:href',
+  #              '@lang', '@xml:lang', '@script', '@transliteration']
   # },
-  #   'mods:note'=> {
-  #    'self' => ['@type', '@displayLabel', '@xlink:href']
+
+  'mods:extension/drs:admin/drs:captureDate' => {
+    'self' => ['value']
+  },
+  
+  # 'mods:extension/etd:degree' => {
+  #   'etd:name' => ['value'],
+  #   'etd:level' => ['value'],
+  #   'etd:discipline' => ['value']
   # },
+
+  # 'mods:location'=> {
+  #   'mods:holdingSimple/mods:copyInformation/mods:subLocation' => ['value'],
+  #   'mods:physicalLocation' => ['@type', 'value']
+  # },
+
+  # 'mods:note'=> {
+  #   'self' => ['@type', '@displayLabel', '@xlink:href']
+  # },
+
+  'mods:note[@type="date/sequential_designation"]'=> {
+    'self' => ['value']
+  },
+
+  'mods:note[@type="date/sequential designation"]'=> {
+    'self' => ['value']
+  },
+
   # 'mods:originInfo' => {
   #   'self' => ['@eventType'],
   #   'mods:copyrightDate' => ['@encoding', 'value'],
@@ -83,45 +108,62 @@ config = {
   #   'mods:place/mods:placeTerm' => ['@authority', '@type', 'value'],
   #   'mods:publisher' => ['value']
   # },
+
   # 'mods:originInfo/mods:place/mods:placeTerm' => {
   #   'self' => ['@authority', '@type', 'value']
   # },
-    # 'mods:originInfo/mods:dateCreated' => {
-    #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-    # },
-    # 'mods:originInfo/mods:dateIssued' => {
-    #   'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
-    # },
-    # 'mods:part'=>{
-    #  'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
-    #  'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
-    #  'mods:date'=>['value'],
-    #     'mods:text'=>['@type', '@displayLabel', 'value']
+
+  'mods:originInfo/mods:dateCreated' => {
+    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  },
+
+  'mods:originInfo/mods:dateIssued' => {
+    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  },
+
+  'mods:originInfo/mods:dateOther' => {
+    'self' => ['value', '@type', '@keyDate', '@qualifier', '@encoding', '@point']
+  },
+
+  # 'mods:part'=>{
+  #   'mods:detail'=>['@type', '@level', 'value of mods:number', 'value of mods:caption', 'value of mods:title'],
+  #   'mods:extent'=>['@unit', 'value of mods:start', 'value of mods:end', 'value of mods:total', 'value of mods:list'],
+  #   'mods:date'=>['value'],
+  #   'mods:text'=>['@type', '@displayLabel', 'value']
   # },
+
   # 'mods:physicalDescription/mods:form'=>{
   #   'self'=>['@authority', '@type', 'value']
   # },
-  # 'mods:location'=> {
-  #   'mods:holdingSimple/mods:copyInformation/mods:subLocation' => ['value'],
-  #   'mods:physicalLocation' => ['@type', 'value']
+
+  'mods:recordInfo/mods:recordChangeDate' => {
+    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  },
+
+  'mods:recordInfo/mods:recordCreationDate' => {
+    'self' => ['value', '@keyDate', '@qualifier', '@encoding', '@point']
+  },
+
+  # 'mods:relatedItem' => {
+  #   'mods:titleInfo/mods:title' => ['value']
   # },
-    # 'mods:relatedItem' => {
-    #   'mods:titleInfo/mods:title' => ['value']
-    # },
-    # 'mods:relatedItem/mods:titleInfo' => {
-    #   'self' => ['@displaylabel', '@lang', '@script', '@transliteration', '@type', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
+
+  # 'mods:relatedItem/mods:titleInfo' => {
+  #   'self' => ['@displaylabel', '@lang', '@script', '@transliteration', '@type', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
   # },
-  'mods:relatedItem' => {
-    'self' => ['@type', '@displayLabel'],
-    'mods:identifier' => ['@type', 'value'],
-    'mods:internetMediaType' => ['value'],
-    'mods:location/mods:url' => ['@displayLabel', 'value'],
-    'mods:name' => ['@type'],
-    'mods:name/mods:namePart' => ['@type', 'value'],
-    'mods:originInfo/mods:publisher' => ['value'],
-    'mods:titleInfo/mods:title' => ['value'],
-    'mods:titleInfo/mods:partName' => ['value'],
-  }
+
+  # 'mods:relatedItem' => {
+  #   'self' => ['@type', '@displayLabel'],
+  #   'mods:identifier' => ['@type', 'value'],
+  #   'mods:internetMediaType' => ['value'],
+  #   'mods:location/mods:url' => ['@displayLabel', 'value'],
+  #   'mods:name' => ['@type'],
+  #   'mods:name/mods:namePart' => ['@type', 'value'],
+  #   'mods:originInfo/mods:publisher' => ['value'],
+  #   'mods:titleInfo/mods:title' => ['value'],
+  #   'mods:titleInfo/mods:partName' => ['value'],
+  # },
+
   # 'mods:subject' => {
   #   'self' => ['@authority'],
   #   'mods:genre' => ['value'],
@@ -134,16 +176,14 @@ config = {
   #   'mods:titleInfo' => ['value'],
   #   'mods:topic' => ['value']
   # },
-  # 'mods:extension/etd:degree' => {
-  #   'etd:name' => ['value'],
-  #   'etd:level' => ['value'],
-  #   'etd:discipline' => ['value']
+
+  # 'mods:titleInfo' => {
+  #   'self' => ['@altRepGroup', '@authority', '@displaylabel', '@lang', '@nameTitleGroup', '@script', '@transliteration', '@type',
+  #              '@usage', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber',
+  #              'value of mods:partName'],
+  #   'mods:title' => ['value']
   # },
-    # 'mods:titleInfo' => {
-    #   'self' => ['@altRepGroup', '@authority', '@displaylabel', '@lang', '@nameTitleGroup', '@script', '@transliteration', '@type', '@usage', 'value of mods:nonSort', 'value of mods:title', 'value of mods:subTitle', 'value of mods:partNumber', 'value of mods:partName'],
-    #   # 'mods:title' => ['value']
-    # },
-  }
+}
 
 options = {}
 OptionParser.new{ |opts|
@@ -187,9 +227,7 @@ def make_headers(config)
   return headers
 end
 
-def extract_mods(modspath, modsfile, xpaths)
-  id = modsfile.sub('.xml', '')
-
+def open_mods(modspath, modsfile)
   begin
     doc = Nokogiri::XML(File.open("#{modspath}/#{modsfile}"))
   rescue
@@ -197,36 +235,62 @@ def extract_mods(modspath, modsfile, xpaths)
     return {id => []}
   end
   
-  mods = doc.root
+  doc.root
+end
+
+def fix_namespace_definitions(mods)
+
+
+
+
+
+namespaces = {
+    'dc' => 'http:://purl.org/elements/1.1/',
+    'dcterms' => 'http://purl.org/dc/terms/',
+    'drs' => 'info://lyrasis/drs-admin/v1',
+    'dwc' => 'http://rs.tdwg.org/dwc/terms/',
+    'edm' => 'http://pro.europeana.eu/edm-documentation',
+    'etd' => 'http://www.ndltd.org/standards/metadata/etdms/1.0',
+    'mods' => 'http://www.loc.gov/mods/v3',
+    'xlink' => 'http://www.w3.org/1999/xlink',
+    'xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+  }
+
+  namespaces.each do |ns, uri|
+    next if mods.namespaces.has_key?("xmlns:#{ns}")
+
+    begin
+      mods.add_namespace_definition(ns, uri)
+    rescue
+      Log.warn("#{modsfile} - Cannot add #{ns.upcase} namespace definition. Check it out?")
+    end
+  end
+
+  mods
+end
+
+
+def extract_mods(modspath, modsfile, config)
+  id = modsfile.sub('.xml', '')
+
+  mods = open_mods(modspath, modsfile)
 
   # The following line is needed because it looks like the mods namespace hasn't been
   #  defined in the standard way for all our clients
-  begin
-    mods.add_namespace_definition('mods', 'http://www.loc.gov/mods/v3') unless mods.namespaces.has_key?('xmlns:mods')
-  rescue
-    Log.warn("#{modsfile} - Cannot add MODS namespace definition. Check it out?")
-    return {id => []}
-  end
-
-  begin
-    mods.add_namespace_definition('etd', 'http://www.ndltd.org/standards/metadata/etdms/1.0') unless mods.namespaces.has_key?('xmlns:etd')
-  rescue
-    Log.warn("#{modsfile} - Cannot add ETD namespace definition. Check it out?")
-    return {id => []}
-  end
-
+  mods = fix_namespace_definitions(mods)
+  
   modsdata = []
-  xpaths.each{ |relement, colhash|
-    hdr = relement.clone.sub('//', '').gsub(/(mods|etd):/, ' ')
-    
-    rownodes = mods.xpath(relement)
+  config.each{ |row_element, colhash|
+    hdr = row_element.clone.sub('//', '').gsub(/(mods|etd):/, ' ')
+
+    rownodes = mods.xpath(row_element)
     if rownodes.length > 0
       rownodes.each{ |rownode|
         modsdata << process_row(rownode, colhash, hdr)
       }
     else
-      blank = Nokogiri::XML::Element.new('blank', doc)
-      modsdata << process_row(blank, colhash, hdr)
+      # blank = Nokogiri::XML::Element.new('blank', doc)
+      # modsdata << process_row(blank, colhash, hdr)
     end
   }
   return {id => modsdata}
