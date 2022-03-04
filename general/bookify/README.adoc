@@ -1,0 +1,3 @@
+= Islandora utils
+
+*bookify.rb*:: structures/renames a bunch of `*.xml` and image files in one directory into the book directory structure required for Islandora ingest. Makes *a lot* of assumptions and is really quick-and-dirty
