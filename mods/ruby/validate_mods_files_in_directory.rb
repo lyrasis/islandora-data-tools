@@ -1,3 +1,5 @@
+puts 'Checking/installing dependencies...'
+
 require 'bundler/inline'
 require 'logger'
 require 'optparse'
