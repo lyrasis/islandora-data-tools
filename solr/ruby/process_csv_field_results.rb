@@ -67,6 +67,7 @@ def normalize_fieldname(fieldname)
 end
 
 Dir.children(options[:input]).each do |file|
+  puts "Processing #{file}..."
   client = get_client(file).to_sym
   fields = get_fieldnames(file, options)
   good_fields = fix_fieldnames_with_commas(fields)
@@ -88,7 +89,7 @@ end
 norm_data.transform_values!{ |arr| arr.flatten.uniq }
 
 suffix_path = "#{options[:output]}/solr_fields_suffixes.tsv"
-CSV.open(suffix_path, 'wb', {col_sep: "\t"}) do |csv|
+CSV.open(suffix_path, 'wb', col_sep: "\t") do |csv|
   csv << %w[solr_field norm_field client]
   field_data.each do |solr_field, data|
     norm = data[:normalized]
@@ -97,7 +98,7 @@ CSV.open(suffix_path, 'wb', {col_sep: "\t"}) do |csv|
 end
 
 norm_path = "#{options[:output]}/solr_fields_normalized.tsv"
-CSV.open(norm_path, 'wb', {col_sep: "\t"}) do |csv|
+CSV.open(norm_path, 'wb', col_sep: "\t") do |csv|
   csv << %w[norm_solr_field client]
   norm_data.each do |norm_field, clients|
     clients.each{ |client| csv << [norm_field, client] }
