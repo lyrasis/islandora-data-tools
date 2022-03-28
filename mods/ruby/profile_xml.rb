@@ -28,6 +28,9 @@ OptionParser.new{ |opts|
   opts.on('-s', '--strip STRING', 'comma-delimited string indicating node(s) to strip from beginning of xpaths'){ |s|
     options[:strip] = s.split(',')
   }
+  opts.on('-d', '--delimiter STRING', 'Column delimiter/separator for the output value files'){ |d|
+    options[:delim] = d
+  }
   opts.on('-h', '--help', 'Prints this help'){
     puts opts
     exit
@@ -41,14 +44,15 @@ FileUtils.mkdir_p(VALUESPATH) unless Dir::exist?(VALUESPATH)
 FileUtils.rm_rf(Dir.glob("#{VALUESPATH}/*"))
 logpath = "#{PROFILEPATH}/profile_log.txt"
 LOG = Logger.new(logpath)
-WRITE_CHECK_THRESHOLD = 25
-BATCH_WRITE_THRESHOLD = 50
+WRITE_CHECK_THRESHOLD = 2
+BATCH_WRITE_THRESHOLD = 5
 
 class ProfilingManager
   attr_reader :file_count, :err_count, :profile
-  def initialize(dir:, strip:)
+  def initialize(dir:, strip:, delim:)
     @dir = dir
     @strip = strip ? strip : []
+    @delim = delim
     @files = get_files
     @file_count = @files.length
     @err_count = 0
@@ -115,8 +119,11 @@ class ProfilingManager
     values = file_values(tmpfile)
 
     File.open(finalfile, 'a') do |target|
+      write_row(target, headers)
+
       values.each do |val, info|
-        target.write("#{info[:occurrences]}|||#{info[:example_files].flatten.first(3).join('^^^')}|||#{val}\n")
+        rowdata = [info[:occurrences], info[:example_files].first(3).join('^^^'), val]
+        write_row(target, rowdata)
       end
     end
 
@@ -136,7 +143,7 @@ class ProfilingManager
     values = {}
     
     File.readlines(path).each do |line|
-      splitline = line.chomp!.split('|||')
+      splitline = line.chomp!.split(@delim)
       occs, exs, val = splitline[0].to_i, splitline[1].split('^^^'), splitline[2]
       if values.key?(val)
         target = values[val]
@@ -183,11 +190,21 @@ class ProfilingManager
   def xpath_filename(xpath)
     "#{VALUESPATH}/tmp_#{xpath.gsub('/', '_')}.txt"
   end
+
+  
+  def write_row(file, rowdata)
+    file.write("#{rowdata.join(@delim)}\n")
+  end
+
+  def headers
+    %w[occurrences example_files value]
+  end
   
   def write_values(xpath, valhash)
     File.open(xpath_filename(clean_xpath(xpath)), 'a') do |valfile|
       valhash[:values].each do |value, info|
-        valfile.write("#{info[:occurrences]}|||#{info[:example_files].flatten.first(3).join('^^^')}|||#{value}\n")
+        rowdata = [info[:occurrences], info[:example_files].join('^^^'), value]
+        write_row(valfile, rowdata)
       end
     end
     @write_counts[xpath] += 1
@@ -376,7 +393,7 @@ class FileProfiler
 end
 
 beginning = Time.now
-pm = ProfilingManager.new(dir: options[:input], strip: options[:strip])
+pm = ProfilingManager.new(dir: options[:input], strip: options[:strip], delim: options[:delim])
 pm.process
 pm.report_summary
 puts ''
