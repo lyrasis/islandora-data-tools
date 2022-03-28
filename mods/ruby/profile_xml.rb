@@ -81,6 +81,7 @@ class ProfilingManager
     deduplicate_value_files
     generate_stats
     rename_tmp_files
+    add_headers
   end
 
   def report_summary
@@ -98,6 +99,32 @@ class ProfilingManager
   end
 
   private
+
+  def add_headers
+    Pathname.new(VALUESPATH).each_child{ |filepath| add_header_to_file(filepath) }
+
+    # get rid of files without headers
+    Pathname.new(VALUESPATH).each_child do |filepath|
+      FileUtils.rm(filepath) if filepath.to_s.end_with?('.txt')
+    end
+
+    # rename files with headers
+    Pathname.new(VALUESPATH).each_child do |filepath|
+      FileUtils.mv(filepath, filepath.sub('_with_header', ''))
+    end
+end
+
+  def add_header_to_file(filepath)
+    new_path = "#{filepath}_with_header"
+    File.open(new_path, 'w') do |with_hdr|
+      write_row(with_hdr, headers)
+
+      File.foreach(filepath) do |row|
+        with_hdr.write(row)
+      end
+    end
+  end
+  
 
   def rename_tmp_files
     Pathname.new(VALUESPATH).each_child{ |filepath| rename_tmp_file(filepath) }
@@ -119,10 +146,8 @@ class ProfilingManager
     values = file_values(tmpfile)
 
     File.open(finalfile, 'a') do |target|
-      write_row(target, headers)
-
       values.each do |val, info|
-        rowdata = [info[:occurrences], info[:example_files].first(3).join('^^^'), val]
+        rowdata = [val, info[:occurrences], info[:example_files].first(3).join('^^^')]
         write_row(target, rowdata)
       end
     end
@@ -144,7 +169,7 @@ class ProfilingManager
     
     File.readlines(path).each do |line|
       splitline = line.chomp!.split(@delim)
-      occs, exs, val = splitline[0].to_i, splitline[1].split('^^^'), splitline[2]
+      val, occs, exs = splitline[0], splitline[1].to_i, splitline[2].split('^^^')
       if values.key?(val)
         target = values[val]
         target[:occurrences] += occs
@@ -197,13 +222,14 @@ class ProfilingManager
   end
 
   def headers
-    %w[occurrences example_files value]
+    %w[value occurrences example_files]
   end
   
   def write_values(xpath, valhash)
     File.open(xpath_filename(clean_xpath(xpath)), 'a') do |valfile|
+      
       valhash[:values].each do |value, info|
-        rowdata = [info[:occurrences], info[:example_files].join('^^^'), value]
+        rowdata = [value, info[:occurrences], info[:example_files].join('^^^')]
         write_row(valfile, rowdata)
       end
     end
