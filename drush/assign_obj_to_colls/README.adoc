@@ -19,3 +19,4 @@
 * Checks whether each collection exists before trying to add object to it. If a given collection does not exist, warning is emitted to Drush STDOUT: `Collection ns:coll2 does not exist. ns:1 cannot be added to this collection.`
 * If collection exists, checks whether object is already in that collection. If so, does nothing silently. If not, adds object to collection.
 * Adding object to a collection updates the object's RELS-EXT datastream and causes it to be re-indexed
+* Optionally, if `rm_old_colls` is set to true, removes existing collection relationships so that the object is moved to rather than shared with each collection in the list. Checks and skips removing a collection if it's in the target list
