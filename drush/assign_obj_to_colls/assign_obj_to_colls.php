@@ -8,6 +8,13 @@ $executionStartTime = microtime(true);
 // Full path to text file of PIDs of object and target colls
 $input = '/opt/migrations/aip/assign9.txt';
 
+// TODO add a config var (true,false) that indicates whether
+// you want to remove other associations
+
+// true if you want to remove existing collections from the object's relationships
+// defaults to false
+$rm_old_colls = false;
+
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
 $linelist = array();
@@ -43,7 +50,7 @@ foreach ($splitlines as $line) {
 
     if ($object) {
       $collpids = explode("^^", $line[1]);
-      check_and_set_collections($object, $collpids);
+      check_and_set_collections($object, $collpids, $rm_old_colls);
     } else {
       drush_log(dt("Nonexistent object: !pid -- Collection(s) not updated",
         array('!pid' => $objpid)),
@@ -53,9 +60,13 @@ foreach ($splitlines as $line) {
     echo progress_bar($progresscounter, $linecount, 'Collection Assignment Progress');
 }
 
-function check_and_set_collections($object, $colls)
+// TODO refactor to include removing a collection association
+// if the above config var is true
+function check_and_set_collections($object, $colls, $rm_old_colls)
 {
   $rels = $object->relationships;
+
+
 
   foreach ($colls as $coll) {
     $collobj = get_object($coll);
@@ -71,6 +82,21 @@ function check_and_set_collections($object, $colls)
       continue;
     }
   }
+  // TODO add code to retrieve the existing relationship objects
+  // if rm_old_colls is set to true
+
+  // removes existing collection relationships if rm_old_colls is set to true
+  if ($rm_old_colls) {
+    $in_colls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
+
+    foreach ($incolls as $coll) {
+      $coll_pid = $coll['object']['value'];
+      // skips if existing coll is in the file of target colls
+      if (!in_array($coll_pid, $colls)) {
+        rm_collection($rels, $coll_pid);
+      }
+    }
+  }
 }
 
 function progress_bar($done, $total, $info="", $width=50) {
@@ -79,6 +105,8 @@ function progress_bar($done, $total, $info="", $width=50) {
     return sprintf("%s%%[%s>%s]%s\n", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), $info);
 }
 
+// checks whether the collection is already in the object's collection list
+// returns true if so; false if not
 function in_collection($rels, $coll)
 {
   $incolls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
@@ -96,6 +124,17 @@ function in_collection($rels, $coll)
 function set_collection($rels, $coll)
 {
   $rels->add(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', $coll);
+}
+
+// TODO add a function called rm_collection that mirrors the above
+// but removes instead of adds
+// see Accessing an object's relationships -> Methods
+//  https://wiki.lyrasis.org/display/ISLANDORA716/APPENDIX+G+-+All+About+Tuque
+
+// removes collection relationship from object
+function rm_collection($rels, $coll)
+{
+  $rels->remove(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', $coll);
 }
 
 function get_object($pid)
