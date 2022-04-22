@@ -8,6 +8,10 @@ $executionStartTime = microtime(true);
 // Full path to text file of PIDs of object and target colls
 $input = '/opt/migrations/aip/assign9.txt';
 
+// True if you want to remove existing collections from the object's relationships
+// Defaults to false
+$rm_old_colls = false;
+
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 
 $linelist = array();
@@ -43,7 +47,7 @@ foreach ($splitlines as $line) {
 
     if ($object) {
       $collpids = explode("^^", $line[1]);
-      check_and_set_collections($object, $collpids);
+      check_and_set_collections($object, $collpids, $rm_old_colls);
     } else {
       drush_log(dt("Nonexistent object: !pid -- Collection(s) not updated",
         array('!pid' => $objpid)),
@@ -53,7 +57,7 @@ foreach ($splitlines as $line) {
     echo progress_bar($progresscounter, $linecount, 'Collection Assignment Progress');
 }
 
-function check_and_set_collections($object, $colls)
+function check_and_set_collections($object, $colls, $rm_old_colls)
 {
   $rels = $object->relationships;
 
@@ -71,6 +75,20 @@ function check_and_set_collections($object, $colls)
       continue;
     }
   }
+
+  // Removes existing collection relationships if rm_old_colls is set to true
+  // Skips if a collection is in the file of target collections
+  if ($rm_old_colls) {
+    $incolls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
+
+    foreach ($incolls as $coll) {
+      $coll_pid = $coll['object']['value'];
+      // Skips if existing coll is in the file of target colls
+      if (!in_array($coll_pid, $colls)) {
+        rm_collection($rels, $coll_pid);
+      }
+    }
+  }
 }
 
 function progress_bar($done, $total, $info="", $width=50) {
@@ -79,6 +97,8 @@ function progress_bar($done, $total, $info="", $width=50) {
     return sprintf("%s%%[%s>%s]%s\n", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), $info);
 }
 
+// checks whether the collection is already in the object's collection list
+// returns true if so; false if not
 function in_collection($rels, $coll)
 {
   $incolls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
@@ -96,6 +116,12 @@ function in_collection($rels, $coll)
 function set_collection($rels, $coll)
 {
   $rels->add(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', $coll);
+}
+
+// Removes collection relationship from object
+function rm_collection($rels, $coll)
+{
+  $rels->remove(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', $coll);
 }
 
 function get_object($pid)
