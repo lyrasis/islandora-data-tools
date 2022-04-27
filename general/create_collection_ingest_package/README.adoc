@@ -1,0 +1,3 @@
+= create_collection_ingest_packages.rb
+
+Based on the workflow link:../../workflows/batch_ingest_collections.adoc[batch_ingest_collections].
