@@ -6,51 +6,61 @@ $executionStartTime = microtime(true);
 
 // // // Variables to change
 // Full path to text file of PIDs of object and target colls
-$input = '/opt/migrations/aip/assign9.txt';
+// $input = '/opt/migrations/aip/assign9.txt';
+
+// Patching in an array so I can run through multiple files
+$input = [];
 
 // // // All variables you will need to update for routine use of the script are ABOVE this line
+// Patched as a function so I can filter the array of files in
+the_main_thing($input);
 
-$linelist = array();
+function the_main_thing($input){
+  foreach($input as $file){
+    $linelist = array();
 
-$fn = fopen($input, 'r');
+    $fn = fopen($file, 'r');
 
-while(!feof($fn)) {
-    $line = fgets($fn);
-    array_push($linelist, rtrim($line));
-}
-
-$goodlines = array_filter($linelist, 'strlen');
-$linecount = count($goodlines);
-echo "Assigning $linecount objects to target collections...\n\n";
-
-$splitlines = array();
-
-foreach($goodlines as $line) {
-    array_push($splitlines, explode("|", $line));
-}
-
-drupal_static_reset('islandora_get_tuque_connection');
-$tuque = islandora_get_tuque_connection();
-$repository = $tuque->repository;
-
-$progresscounter = 0;
-
-foreach ($splitlines as $line) {
-    $progresscounter = ++$progresscounter;
-
-    $objpid = $line[0];
-    $object = get_object($objpid);
-
-    if ($object) {
-      $collpids = explode("^^", $line[1]);
-      check_and_set_collections($object, $collpids);
-    } else {
-      drush_log(dt("Nonexistent object: !pid -- Collection(s) not updated",
-        array('!pid' => $objpid)),
-        'warning');
-      continue;
+    while(!feof($fn)) {
+        $line = fgets($fn);
+        array_push($linelist, rtrim($line));
     }
-    echo progress_bar($progresscounter, $linecount, 'Collection Assignment Progress');
+
+    $goodlines = array_filter($linelist, 'strlen');
+    $linecount = count($goodlines);
+    echo "Assigning $linecount objects to target collections...\n\n";
+
+    $splitlines = array();
+
+    foreach($goodlines as $line) {
+        array_push($splitlines, explode("|", $line));
+    }
+
+    drupal_static_reset('islandora_get_tuque_connection');
+    $tuque = islandora_get_tuque_connection();
+    $repository = $tuque->repository;
+
+    $progresscounter = 0;
+
+    foreach ($splitlines as $line) {
+        $progresscounter = ++$progresscounter;
+
+        $objpid = $line[0];
+        $object = get_object($objpid);
+
+        if ($object) {
+          $collpids = explode("^^", $line[1]);
+          check_and_set_collections($object, $collpids);
+        } else {
+          drush_log(dt("Nonexistent object: !pid -- Collection(s) not updated",
+            array('!pid' => $objpid)),
+            'warning');
+          continue;
+        }
+        echo progress_bar($progresscounter, $linecount, 'Collection Assignment Progress');
+    }
+    sleep(60);
+  }
 }
 
 function check_and_set_collections($object, $colls)
