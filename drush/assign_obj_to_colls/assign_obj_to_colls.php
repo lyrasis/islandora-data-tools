@@ -11,6 +11,10 @@ $executionStartTime = microtime(true);
 // Patching in an array so I can run through multiple files
 $input = [];
 
+// True if you want to remove existing collections from the object's relationships
+// Defaults to false
+$rm_old_colls = false;
+
 // // // All variables you will need to update for routine use of the script are ABOVE this line
 // Patched as a function so I can filter the array of files in
 the_main_thing($input);
@@ -22,8 +26,8 @@ function the_main_thing($input){
     $fn = fopen($file, 'r');
 
     while(!feof($fn)) {
-        $line = fgets($fn);
-        array_push($linelist, rtrim($line));
+      $line = fgets($fn);
+      array_push($linelist, rtrim($line));
     }
 
     $goodlines = array_filter($linelist, 'strlen');
@@ -33,7 +37,7 @@ function the_main_thing($input){
     $splitlines = array();
 
     foreach($goodlines as $line) {
-        array_push($splitlines, explode("|", $line));
+      array_push($splitlines, explode("|", $line));
     }
 
     drupal_static_reset('islandora_get_tuque_connection');
@@ -43,27 +47,26 @@ function the_main_thing($input){
     $progresscounter = 0;
 
     foreach ($splitlines as $line) {
-        $progresscounter = ++$progresscounter;
+      $progresscounter = ++$progresscounter;
 
-        $objpid = $line[0];
-        $object = get_object($objpid);
+      $objpid = $line[0];
+      $object = get_object($objpid);
 
-        if ($object) {
-          $collpids = explode("^^", $line[1]);
-          check_and_set_collections($object, $collpids);
-        } else {
-          drush_log(dt("Nonexistent object: !pid -- Collection(s) not updated",
-            array('!pid' => $objpid)),
-            'warning');
-          continue;
-        }
-        echo progress_bar($progresscounter, $linecount, 'Collection Assignment Progress');
+      if ($object) {
+        $collpids = explode("^^", $line[1]);
+        check_and_set_collections($object, $collpids, $rm_old_colls);
+      } else {
+        drush_log(dt("Nonexistent object: !pid -- Collection(s) not updated",
+          array('!pid' => $objpid)),
+          'warning');
+        continue;
+      }
     }
     sleep(60);
   }
 }
 
-function check_and_set_collections($object, $colls)
+function check_and_set_collections($object, $colls, $rm_old_colls)
 {
   $rels = $object->relationships;
 
@@ -81,6 +84,20 @@ function check_and_set_collections($object, $colls)
       continue;
     }
   }
+
+  // Removes existing collection relationships if rm_old_colls is set to true
+  // Skips if a collection is in the file of target collections
+  if ($rm_old_colls) {
+    $incolls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
+
+    foreach ($incolls as $coll) {
+      $coll_pid = $coll['object']['value'];
+      // Skips if existing coll is in the file of target colls
+      if (!in_array($coll_pid, $colls)) {
+        rm_collection($rels, $coll_pid);
+      }
+    }
+  }
 }
 
 function progress_bar($done, $total, $info="", $width=50) {
@@ -89,6 +106,8 @@ function progress_bar($done, $total, $info="", $width=50) {
     return sprintf("%s%%[%s>%s]%s\n", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), $info);
 }
 
+// checks whether the collection is already in the object's collection list
+// returns true if so; false if not
 function in_collection($rels, $coll)
 {
   $incolls = $rels->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
@@ -106,6 +125,12 @@ function in_collection($rels, $coll)
 function set_collection($rels, $coll)
 {
   $rels->add(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', $coll);
+}
+
+// Removes collection relationship from object
+function rm_collection($rels, $coll)
+{
+  $rels->remove(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', $coll);
 }
 
 function get_object($pid)
