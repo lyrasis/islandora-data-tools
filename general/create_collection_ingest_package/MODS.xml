@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drs="info://lyrasis/drs-admin/v1" xmlns:dc="http:://purl.org/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dwc="http://rs.tdwg.org/dwc/terms/" xmlns:edm="http://pro.europeana.eu/edm-documentation" xmlns:mods="http://www.loc.gov/mods/v3">
+  <titleInfo usage="primary">
+  <title>First collection</title>
+  </titleInfo>
+  <abstract>This is a description of the first collection</abstract>
+</mods>
