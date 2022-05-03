@@ -1,3 +1,6 @@
 = create_collection_ingest_packages.rb
 
-Based on the workflow link:../../workflows/batch_ingest_collections.adoc[batch_ingest_collections].
+Based on the workflow link:../../workflows/batch_ingest_collections.adoc[batch_ingest_collections]. This script uses a CSV with collection name and collection description, a COLLECTION_POLICY template, MODS.xml template, and thumbnail image to create ingest packages for a batch of collections. It will modify the MODS.xml for each collection based on the CSV.
+
+Included are templates for COLLECTION_POLICY.xml and MODS.xml. If you already have an instance with collections, I would recommend download the COLLECTION_POLICY.xml file for one of your existing collections if you want to mirror your existing collections' policies. A thumb
+
